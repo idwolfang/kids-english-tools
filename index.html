@@ -402,8 +402,9 @@
   }
   .word-emoji { font-size: 78px; line-height: 1; margin-bottom: 6px; }
   .word-en {
-    font-family: 'Press Start 2P', monospace;
-    font-size: 20px;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-weight: 700;
+    font-size: 26px;
     color: var(--accent-dark);
     margin: 10px 0 14px;
   }
@@ -436,8 +437,9 @@
   .sentence-target { text-align: center; }
   .sentence-target .word-emoji { font-size: 64px; }
   .sentence-line {
-    font-family: 'Press Start 2P', monospace;
-    font-size: 14px;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-weight: 700;
+    font-size: 19px;
     text-align: center;
     line-height: 2;
     margin: 16px 0;
@@ -485,7 +487,7 @@
     margin-top: 16px;
     text-align: center;
   }
-  .reveal-box .en { font-family: 'Press Start 2P', monospace; font-size: 13px; margin-bottom: 8px; }
+  .reveal-box .en { font-family: 'Noto Sans TC', sans-serif; font-weight: 700; font-size: 18px; margin-bottom: 8px; }
   .reveal-box .zh { font-size: 20px; margin-bottom: 12px; }
 
   /* ---------- spelling practice ---------- */
@@ -515,8 +517,9 @@
 
   /* ---------- Scott: vocab review ---------- */
   .word-en-big {
-    font-family: 'Press Start 2P', monospace;
-    font-size: 22px;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-weight: 700;
+    font-size: 30px;
     color: var(--accent-dark);
     margin-bottom: 14px;
     word-break: break-word;
@@ -849,8 +852,8 @@
     <button data-jump="complete">完成畫面</button>
   </span>
   <span id="test-scott-jumps" hidden>
-    <button data-jump="review">單字複習</button>
     <button data-jump="preview">生字卡</button>
+    <button data-jump="review">單字複習</button>
     <button data-jump="story">故事</button>
     <button data-jump="check">理解檢核</button>
     <button data-jump="scott-complete">完成畫面</button>
@@ -928,12 +931,11 @@
       mc: [
         { q: "What time does Ben wake up?", options: ["Seven o'clock", "Eight o'clock", "Nine o'clock"], answer: 1 },
         { q: "Who makes breakfast for Ben?", options: ["His dad", "His mom", "Leo"], answer: 1 },
-        { q: "Where does Ben ride his bike?", options: ["To school", "To the park", "To Leo's house"], answer: 1 }
+        { q: "Where does Ben ride his bike?", options: ["To school", "To the park", "To Leo's house"], answer: 1 },
+        { q: "What does Ben eat for breakfast?", options: ["Eggs and toast", "Cereal and milk", "Pancakes"], answer: 0 },
+        { q: "What do Ben and Leo play together?", options: ["Soccer", "Basketball", "Baseball"], answer: 1 }
       ],
-      short: [
-        { q: "What does Ben eat for breakfast?", keywords: ['egg', 'toast'], requireAll: true, hintSentence: "His mom makes eggs and toast.", ref: "eggs and toast" },
-        { q: "What do Ben and Leo play together?", keywords: ['basketball'], requireAll: true, hintSentence: "They play basketball together until noon.", ref: "basketball" }
-      ]
+      short: []
     },
     {
       id: 'sday2',
@@ -954,12 +956,11 @@
       mc: [
         { q: "What time does Mia finish school?", options: ["Two o'clock", "Three o'clock", "Four o'clock"], answer: 1 },
         { q: "Who does Mia walk home with?", options: ["Her mom", "Zoe", "Her teacher"], answer: 1 },
-        { q: "Where do they stop on the way?", options: ["A park", "A small shop", "A library"], answer: 1 }
+        { q: "Where do they stop on the way?", options: ["A park", "A small shop", "A library"], answer: 1 },
+        { q: "What does Mia do before dinner?", options: ["Watches TV", "Does her homework", "Plays outside"], answer: 1 },
+        { q: "What does Mia do after dinner?", options: ["Reads a book", "Talks to Zoe", "Draws a picture"], answer: 0 }
       ],
-      short: [
-        { q: "What does Mia do before dinner?", keywords: ['homework'], requireAll: true, hintSentence: "At home, Mia does her homework before dinner.", ref: "homework / does her homework" },
-        { q: "What does Mia do after dinner?", keywords: ['read', 'book'], requireAll: true, hintSentence: "After dinner, she reads a book and goes to bed early.", ref: "reads a book" }
-      ]
+      short: []
     },
     {
       id: 'sday3',
@@ -980,12 +981,11 @@
       mc: [
         { q: "Why can't Tom play soccer?", options: ["He is sick", "It is raining", "He has no friends"], answer: 1 },
         { q: "What does Tom draw?", options: ["A dragon", "A car", "A house"], answer: 0 },
-        { q: "What do they drink together?", options: ["Juice", "Milk", "Hot chocolate"], answer: 2 }
+        { q: "What do they drink together?", options: ["Juice", "Milk", "Hot chocolate"], answer: 2 },
+        { q: "Who watches Tom and laughs?", options: ["His mom", "His little sister", "His friend"], answer: 1 },
+        { q: "What do they do after they drink hot chocolate?", options: ["Go to bed", "Play a game", "Watch a movie"], answer: 2 }
       ],
-      short: [
-        { q: "Who watches Tom and laughs?", keywords: ['sister'], requireAll: true, hintSentence: "His little sister watches him and laughs.", ref: "his little sister" },
-        { q: "What do they do after they drink hot chocolate?", keywords: ['movie'], requireAll: true, hintSentence: "Later, they drink hot chocolate together and watch a movie.", ref: "watch a movie" }
-      ]
+      short: []
     },
     {
       id: 'sday4',
@@ -1007,12 +1007,11 @@
       mc: [
         { q: "Where will the class visit?", options: ["The museum", "The zoo", "The park"], answer: 1 },
         { q: "What must the students do?", options: ["Run fast", "Stay together and listen carefully", "Buy snacks"], answer: 1 },
-        { q: "When will they take photos?", options: ["Before lunch", "After lunch", "In the morning"], answer: 1 }
+        { q: "When will they take photos?", options: ["Before lunch", "After lunch", "In the morning"], answer: 1 },
+        { q: "What animals will they see?", options: ["Lions, elephants, and monkeys", "Tigers and bears", "Birds and fish"], answer: 0 },
+        { q: "What will they do near the big tiger?", options: ["Feed it", "Take photos", "Draw a picture"], answer: 1 }
       ],
-      short: [
-        { q: "What animals will they see?", keywords: ['lion', 'elephant', 'monkey'], requireAll: false, hintSentence: "We will see lions, elephants, and monkeys there.", ref: "lions, elephants, and monkeys" },
-        { q: "What will they do near the big tiger?", keywords: ['photo'], requireAll: true, hintSentence: "After lunch, we will take photos near the big tiger.", ref: "take photos" }
-      ]
+      short: []
     }
   ];
 
@@ -1182,7 +1181,7 @@
   function startDay(dayId) {
     session.dayId = dayId;
     if (activeProfile === 'scott') {
-      startVocabReview();
+      startPreviewCards();
     } else {
       session.wordIdx = 0;
       show('screen-words');
@@ -1266,7 +1265,7 @@
     shuffledOptions.forEach(function (opt) {
       const btn = document.createElement('button');
       btn.className = 'option-btn';
-      btn.innerHTML = '<span class="oe">' + opt.emoji + '</span><span>' + opt.en + '</span>';
+      btn.innerHTML = '<span>' + opt.en + '</span>';
       btn.addEventListener('click', function () { handleSentenceAnswer(opt, word, btn); });
       grid.appendChild(btn);
     });
@@ -1593,7 +1592,7 @@
       renderReviewRound();
     } else {
       ensureDayState(session.dayId).reviewDone = true;
-      startPreviewCards();
+      startStory();
     }
   });
 
@@ -1612,7 +1611,7 @@
     $('pv-zh').textContent = word.zh;
     $('pv-def').textContent = word.def;
     $('pv-prev').disabled = session.previewIdx === 0;
-    $('pv-next').textContent = (session.previewIdx === day.previewWords.length - 1) ? '去讀故事 →' : '下一個';
+    $('pv-next').textContent = (session.previewIdx === day.previewWords.length - 1) ? '去做單字複習 →' : '下一個';
 
     const dots = $('preview-dots');
     dots.innerHTML = '';
@@ -1637,7 +1636,7 @@
       renderPreviewCard();
     } else {
       ensureDayState(day.id).previewDone = true;
-      startStory();
+      startVocabReview();
     }
   });
 
