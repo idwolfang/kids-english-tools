@@ -482,6 +482,31 @@
   .reveal-box .en { font-family: 'Press Start 2P', monospace; font-size: 13px; margin-bottom: 8px; }
   .reveal-box .zh { font-size: 20px; margin-bottom: 12px; }
 
+  /* ---------- spelling practice ---------- */
+  .spell-prompt {
+    text-align: center;
+    font-size: 13px;
+    color: var(--ink-soft);
+    margin: 4px 0 10px;
+  }
+  .spell-input {
+    display: block;
+    width: 100%;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 20px;
+    text-align: center;
+    padding: 12px;
+    border: 3px solid var(--panel-edge-dark);
+    border-radius: 8px;
+    background: var(--panel);
+    color: var(--ink);
+    box-sizing: border-box;
+  }
+  .spell-input:focus { outline: none; border-color: var(--accent-dark); }
+  .spell-input.correct { border-color: var(--accent-dark); background: var(--accent-light); }
+  .spell-input.wrong { border-color: var(--danger-dark); background: #f7d3d3; }
+  .spell-input:disabled { opacity: 0.8; }
+
   /* ---------- matching game (left/right columns) ---------- */
   .match-hint {
     text-align: center;
@@ -647,6 +672,25 @@
       </div>
     </section>
 
+    <!-- SPELLING PRACTICE -->
+    <section id="screen-spell" class="screen pixel-panel" hidden>
+      <div class="progress-dots" id="spell-dots"></div>
+      <div class="sentence-target">
+        <div class="word-emoji" id="sp-emoji">🐶</div>
+        <div class="word-zh" id="sp-zh" style="margin-top:6px"></div>
+      </div>
+      <p class="spell-prompt" id="sp-prompt">請輸入英文單字</p>
+      <input class="spell-input" id="sp-input" type="text" autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="type here">
+      <button class="pixel-btn" id="sp-submit" style="width:100%;margin-top:12px">確認</button>
+      <div class="hint-box" id="sp-hint"></div>
+      <div class="reveal-box" id="sp-reveal" hidden>
+        <div class="en" id="sp-reveal-en"></div>
+        <button class="speak-btn" id="sp-reveal-speak">🔊 再聽一次</button>
+        <div style="height:14px"></div>
+        <button class="pixel-btn" id="sp-continue">繼續 →</button>
+      </div>
+    </section>
+
     <!-- DAY COMPLETE -->
     <section id="screen-complete" class="screen pixel-panel" hidden>
       <div class="big-emoji">🎉</div>
@@ -710,7 +754,7 @@
 
   /* ===================== STATE ===================== */
   let state = {
-    days: {} // dayId -> { wordsDone, sentenceDone, matchDone } (session-only, resets on reload)
+    days: {} // dayId -> { wordsDone, sentenceDone, matchDone, spellDone } (session-only, resets on reload)
   };
 
   let session = {
@@ -725,7 +769,11 @@
     selectedRight: null,
     matchedKeys: [],
     wrongFlash: false,
-    matchLock: false
+    matchLock: false,
+    spellQueue: [],
+    spellTotalInitial: 0,
+    spellPos: 0,
+    spellAttempts: 0
   };
 
   /* ===================== HELPERS ===================== */
@@ -781,7 +829,7 @@
 
   function ensureDayState(dayId) {
     if (!state.days[dayId]) {
-      state.days[dayId] = { wordsDone: false, sentenceDone: false, matchDone: false };
+      state.days[dayId] = { wordsDone: false, sentenceDone: false, matchDone: false, spellDone: false };
     }
     return state.days[dayId];
   }
@@ -813,7 +861,7 @@
       } else {
         const unlocked = iso <= todayIso;
         const ds = ensureDayState(contentDay.id);
-        const done = ds.wordsDone && ds.sentenceDone && ds.matchDone;
+        const done = ds.wordsDone && ds.sentenceDone && ds.matchDone && ds.spellDone;
         cell.className = 'cal-cell has-content ' + (unlocked ? 'unlocked' : 'locked');
         cell.innerHTML =
           '<span>' + d + '</span>' +
@@ -1045,7 +1093,8 @@
         session.matchLock = false;
         renderMatchColumns();
         if (session.matchedKeys.length === session.matchLeft.length) {
-          setTimeout(finishDay, 400);
+          ensureDayState(dayById(session.dayId).id).matchDone = true;
+          setTimeout(startSpellPractice, 400);
         }
       }, 300);
     } else {
@@ -1061,9 +1110,106 @@
     }
   }
 
+  /* ===================== SPELLING PRACTICE ===================== */
+  function startSpellPractice() {
+    const day = dayById(session.dayId);
+    session.spellQueue = shuffle(day.words).map(function (w) { return { word: w, isRetry: false }; });
+    session.spellTotalInitial = session.spellQueue.length;
+    session.spellPos = 0;
+    show('screen-spell');
+    renderSpellRound();
+  }
+
+  function renderSpellRound() {
+    const entry = session.spellQueue[session.spellPos];
+    const word = entry.word;
+    session.spellAttempts = 0;
+
+    $('sp-prompt').textContent = entry.isRetry ? '🔁 加強練習：再輸入一次這個單字' : '請輸入英文單字';
+    $('sp-emoji').textContent = word.emoji;
+    $('sp-zh').innerHTML = renderRuby(word.wordZh);
+    $('sp-hint').textContent = '';
+    $('sp-reveal').hidden = true;
+    $('sp-submit').hidden = false;
+
+    const input = $('sp-input');
+    input.value = '';
+    input.className = 'spell-input';
+    input.disabled = false;
+    input.focus();
+
+    const dots = $('spell-dots');
+    if (entry.isRetry) {
+      dots.hidden = true;
+    } else {
+      dots.hidden = false;
+      dots.innerHTML = '';
+      for (let i = 0; i < session.spellTotalInitial; i++) {
+        const dot = document.createElement('span');
+        if (i < session.spellPos) dot.className = 'done';
+        else if (i === session.spellPos) dot.className = 'current';
+        dots.appendChild(dot);
+      }
+    }
+  }
+
+  function handleSpellSubmit() {
+    const entry = session.spellQueue[session.spellPos];
+    const word = entry.word;
+    const input = $('sp-input');
+    const val = input.value.trim().toLowerCase();
+    if (!val) return;
+
+    if (val === word.en.toLowerCase()) {
+      input.disabled = true;
+      input.classList.add('correct');
+      $('sp-submit').hidden = true;
+      setTimeout(function () { revealSpell(word, entry, true); }, 350);
+      return;
+    }
+
+    session.spellAttempts++;
+    input.classList.add('wrong');
+    setTimeout(function () { input.classList.remove('wrong'); }, 400);
+
+    if (session.spellAttempts === 1) {
+      $('sp-hint').textContent = '再試一次！提示：共 ' + word.en.length + ' 個字母，開頭是「' + word.en[0].toUpperCase() + '」';
+      input.value = '';
+      input.focus();
+    } else {
+      input.disabled = true;
+      $('sp-submit').hidden = true;
+      revealSpell(word, entry, false);
+    }
+  }
+
+  function revealSpell(word, entry, wasCorrect) {
+    $('sp-hint').textContent = '';
+    $('sp-reveal').hidden = false;
+    $('sp-reveal-en').textContent = word.en;
+    $('sp-reveal-speak').onclick = function () { speak(word.en); };
+    speak(word.en);
+    if (!wasCorrect && !entry.isRetry) {
+      session.spellQueue.push({ word: word, isRetry: true });
+    }
+  }
+
+  $('sp-submit').addEventListener('click', handleSpellSubmit);
+  $('sp-input').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && !$('sp-input').disabled) { handleSpellSubmit(); }
+  });
+  $('sp-continue').addEventListener('click', function () {
+    session.spellPos++;
+    if (session.spellPos < session.spellQueue.length) {
+      renderSpellRound();
+    } else {
+      finishDay();
+    }
+  });
+
   function finishDay() {
     const day = dayById(session.dayId);
-    ensureDayState(day.id).matchDone = true;
+    ensureDayState(day.id).spellDone = true;
     show('screen-complete');
   }
 
