@@ -1,0 +1,1200 @@
+<title>Block Word Quest</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
+
+  :root {
+    --bg-top: #bfe6f7;
+    --bg-bot: #d9f3d9;
+    --panel: #fffaf0;
+    --panel-edge: #d8cba8;
+    --panel-edge-dark: #b7a97e;
+    --ink: #2b2b3d;
+    --ink-soft: #6a6a80;
+    --accent: #4caf50;
+    --accent-dark: #2e7d32;
+    --accent-light: #a5e0a8;
+    --accent2: #ffb74d;
+    --accent2-dark: #c67c00;
+    --block: #a9713f;
+    --block-dark: #7a4f28;
+    --block-light: #c99361;
+    --danger: #e5595b;
+    --danger-dark: #a83c3e;
+    --sky-cloud: #ffffff;
+    --card-back: #7bc97e;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg-top: #17202e;
+      --bg-bot: #1c2b22;
+      --panel: #232a3a;
+      --panel-edge: #3a4459;
+      --panel-edge-dark: #141a26;
+      --ink: #eef1f8;
+      --ink-soft: #a6adc3;
+      --accent: #5fd066;
+      --accent-dark: #3a9a41;
+      --accent-light: #2d4a34;
+      --accent2: #ffc266;
+      --accent2-dark: #a86c00;
+      --block: #c88f5a;
+      --block-dark: #8a5c30;
+      --block-light: #a9713f;
+      --danger: #ff6b6d;
+      --danger-dark: #c0393b;
+      --sky-cloud: #2f3a4e;
+      --card-back: #2e6b39;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg-top: #17202e;
+    --bg-bot: #1c2b22;
+    --panel: #232a3a;
+    --panel-edge: #3a4459;
+    --panel-edge-dark: #141a26;
+    --ink: #eef1f8;
+    --ink-soft: #a6adc3;
+    --accent: #5fd066;
+    --accent-dark: #3a9a41;
+    --accent-light: #2d4a34;
+    --accent2: #ffc266;
+    --accent2-dark: #a86c00;
+    --block: #c88f5a;
+    --block-dark: #8a5c30;
+    --block-light: #a9713f;
+    --danger: #ff6b6d;
+    --danger-dark: #c0393b;
+    --sky-cloud: #2f3a4e;
+    --card-back: #2e6b39;
+  }
+
+  * { box-sizing: border-box; }
+
+  /* Taiwan-style zhuyin: main symbols stacked vertically to the right of the
+     character; the tone mark sits beside the last symbol, offset further
+     right and smaller (not stacked as its own row). Built manually with
+     flexbox/absolute positioning rather than <ruby>/ruby-position:inter-character,
+     since that CSS value has inconsistent browser support (including iOS Safari). */
+  .zh-unit {
+    display: inline-flex;
+    align-items: center;
+    margin-right: 10px;
+  }
+  .zh-zy {
+    position: relative;
+    display: inline-block;
+    margin-left: 3px;
+    padding-right: 0.55em;
+  }
+  .zy-col {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    line-height: 1.05;
+  }
+  .zy-col span {
+    font-size: 0.42em;
+    color: var(--ink-soft);
+    display: block;
+  }
+  .zy-tone {
+    position: absolute;
+    left: 100%;
+    font-size: 0.36em;
+    color: var(--ink-soft);
+  }
+  .zy-tone-trail { bottom: 0.05em; }
+  .zy-tone-lead { top: 0.05em; }
+
+  body {
+    margin: 0;
+    background: linear-gradient(180deg, var(--bg-top) 0%, var(--bg-bot) 100%);
+    color: var(--ink);
+    font-family: 'Noto Sans TC', 'PingFang TC', 'Microsoft JhengHei', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 20px 14px 40px;
+  }
+
+  .pixel-font { font-family: 'Press Start 2P', 'Noto Sans TC', monospace; }
+
+  #app {
+    width: 100%;
+    max-width: 480px;
+  }
+
+  /* ---------- pixel panel / button primitives ---------- */
+  .pixel-panel {
+    background: var(--panel);
+    border: 4px solid var(--panel-edge-dark);
+    box-shadow:
+      0 0 0 4px var(--panel-edge),
+      6px 6px 0 0 rgba(0,0,0,0.18);
+    border-radius: 2px;
+    padding: 18px;
+  }
+
+  .pixel-btn {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 11px;
+    line-height: 1.6;
+    color: #fff;
+    background: var(--accent);
+    border: none;
+    border-bottom: 5px solid var(--accent-dark);
+    border-radius: 3px;
+    padding: 12px 16px;
+    cursor: pointer;
+    text-align: center;
+    user-select: none;
+    transition: transform 0.05s ease;
+  }
+  .pixel-btn:active {
+    transform: translateY(3px);
+    border-bottom-width: 2px;
+  }
+  .pixel-btn.secondary {
+    background: var(--panel);
+    color: var(--ink);
+    border-bottom: 5px solid var(--panel-edge-dark);
+    box-shadow: 0 0 0 3px var(--panel-edge) inset;
+  }
+  .pixel-btn.amber { background: var(--accent2); border-bottom-color: var(--accent2-dark); }
+  .pixel-btn.danger { background: var(--danger); border-bottom-color: var(--danger-dark); }
+  .pixel-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    filter: grayscale(0.3);
+  }
+  .pixel-btn:disabled:active { transform: none; border-bottom-width: 5px; }
+
+  h1, h2, h3 { text-wrap: balance; }
+
+  [hidden] { display: none !important; }
+
+  /* ---------- mode select screen ---------- */
+  #screen-mode { text-align: center; padding-top: 24px; }
+  .logo-blocks {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin-bottom: 18px;
+  }
+  .logo-block {
+    width: 34px; height: 34px;
+    background: var(--block);
+    border: 3px solid var(--block-dark);
+    border-radius: 2px;
+    box-shadow: inset -4px -4px 0 rgba(0,0,0,0.18), inset 3px 3px 0 rgba(255,255,255,0.25);
+  }
+  .logo-block:nth-child(2) { background: var(--accent); border-color: var(--accent-dark); }
+  .logo-block:nth-child(3) { background: var(--accent2); border-color: var(--accent2-dark); }
+  #screen-mode h1 {
+    font-size: 15px;
+    letter-spacing: 1px;
+    margin: 0 0 6px;
+  }
+  #screen-mode p.tagline {
+    color: var(--ink-soft);
+    font-size: 13px;
+    margin: 0 0 28px;
+  }
+  .mode-card {
+    display: block;
+    width: 100%;
+    text-align: left;
+    margin-bottom: 16px;
+    padding: 18px;
+    cursor: pointer;
+    position: relative;
+  }
+  .mode-card .emoji { font-size: 34px; }
+  .mode-card h2 {
+    font-size: 16px;
+    margin: 10px 0 4px;
+  }
+  .mode-card p { margin: 0; color: var(--ink-soft); font-size: 13px; }
+  .mode-card.locked { opacity: 0.6; cursor: default; }
+  .badge-soon {
+    position: absolute;
+    top: 14px; right: 14px;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 9px;
+    background: var(--ink-soft);
+    color: var(--panel);
+    padding: 5px 7px;
+    border-radius: 2px;
+  }
+
+  /* ---------- header (in-grade1 flow) ---------- */
+  #g1-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+    gap: 10px;
+  }
+  .back-btn {
+    background: none;
+    border: none;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 14px;
+    color: var(--ink);
+    cursor: pointer;
+    padding: 6px 8px;
+  }
+  #g1-stats {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .stats-row {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+  }
+  #block-count { display: flex; align-items: center; gap: 4px; }
+  .xp-bar-track {
+    width: 100%;
+    height: 10px;
+    background: var(--panel-edge);
+    border: 2px solid var(--panel-edge-dark);
+    border-radius: 5px;
+    overflow: hidden;
+  }
+  .xp-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent2), var(--accent2-dark));
+    width: 0%;
+    transition: width 0.5s ease;
+  }
+
+  /* ---------- home / day select ---------- */
+  #screen-home h2.section-title {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 13px;
+    margin: 4px 0 16px;
+  }
+  .day-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    width: 100%;
+    text-align: left;
+    margin-bottom: 12px;
+    padding: 14px 16px;
+    cursor: pointer;
+  }
+  .day-card .emoji { font-size: 30px; }
+  .day-card .info { flex: 1; }
+  .day-card h3 { margin: 0 0 3px; font-size: 15px; }
+  .day-card p { margin: 0; color: var(--ink-soft); font-size: 12px; }
+  .day-card .status {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 9px;
+    color: var(--accent-dark);
+  }
+  .note-box {
+    margin-top: 18px;
+    padding: 12px 14px;
+    font-size: 12px;
+    color: var(--ink-soft);
+    background: var(--panel);
+    border: 2px dashed var(--panel-edge-dark);
+    border-radius: 4px;
+  }
+
+  /* ---------- calendar (day picker) ---------- */
+  .cal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .cal-nav {
+    background: none;
+    border: none;
+    font-size: 20px;
+    color: var(--ink);
+    cursor: pointer;
+    padding: 4px 12px;
+    line-height: 1;
+  }
+  .cal-nav:disabled { opacity: 0.3; cursor: default; }
+  .cal-title {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 11px;
+    text-align: center;
+  }
+  .cal-weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    font-size: 11px;
+    color: var(--ink-soft);
+    margin-bottom: 6px;
+    font-weight: 700;
+  }
+  .cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+  }
+  .cal-cell {
+    aspect-ratio: 1 / 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    position: relative;
+    color: var(--ink);
+    border: 2px solid transparent;
+    background: transparent;
+    font-family: 'Noto Sans TC', sans-serif;
+  }
+  .cal-cell.blank { visibility: hidden; }
+  .cal-cell.plain { color: var(--ink-soft); font-weight: 400; }
+  .cal-cell.has-content {
+    cursor: pointer;
+  }
+  .cal-cell.has-content.unlocked {
+    background: var(--accent-light);
+    border-color: var(--accent-dark);
+  }
+  .cal-cell.has-content.locked {
+    background: var(--panel-edge);
+    border-color: var(--panel-edge-dark);
+    color: var(--ink-soft);
+    cursor: not-allowed;
+    opacity: 0.8;
+  }
+  .cal-cell.is-today { box-shadow: 0 0 0 2px var(--accent2-dark); }
+  .cal-cell .cal-icon { font-size: 13px; margin-top: 1px; }
+  .cal-cell .cal-lock { font-size: 11px; margin-top: 1px; }
+  .cal-cell .cal-badge {
+    position: absolute;
+    top: -5px; right: -5px;
+    font-size: 12px;
+  }
+  .cal-legend {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 16px;
+    font-size: 11px;
+    color: var(--ink-soft);
+  }
+  .cal-legend span { display: inline-flex; align-items: center; gap: 4px; }
+  .profile-name {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 14px;
+    text-align: center;
+    margin: 4px 0 16px;
+  }
+
+  /* ---------- progress dots ---------- */
+  .progress-dots {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin: 14px 0;
+  }
+  .progress-dots span {
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    background: var(--panel-edge);
+    display: inline-block;
+  }
+  .progress-dots span.done { background: var(--accent); }
+  .progress-dots span.current { background: var(--accent2); }
+
+  /* ---------- word card screen ---------- */
+  .word-stage { text-align: center; }
+  .word-card {
+    padding: 30px 16px 24px;
+    margin-bottom: 16px;
+  }
+  .word-emoji { font-size: 78px; line-height: 1; margin-bottom: 6px; }
+  .word-en {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 20px;
+    color: var(--accent-dark);
+    margin: 10px 0 14px;
+  }
+  .word-zh {
+    font-size: 24px;
+    margin-bottom: 16px;
+  }
+  .speak-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 11px;
+    background: var(--panel);
+    color: var(--ink);
+    border: 3px solid var(--panel-edge-dark);
+    border-radius: 20px;
+    padding: 10px 18px;
+    cursor: pointer;
+  }
+  .speak-btn:active { transform: scale(0.96); }
+  .nav-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .nav-row .pixel-btn { flex: 1; }
+
+  /* ---------- sentence practice ---------- */
+  .sentence-target { text-align: center; }
+  .sentence-target .word-emoji { font-size: 64px; }
+  .sentence-line {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 14px;
+    text-align: center;
+    line-height: 2;
+    margin: 16px 0;
+  }
+  .sentence-line .blank {
+    display: inline-block;
+    min-width: 64px;
+    border-bottom: 3px solid var(--ink);
+  }
+  .option-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 18px;
+  }
+  .option-btn {
+    font-family: 'Noto Sans TC', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    background: var(--panel);
+    border: 3px solid var(--panel-edge-dark);
+    box-shadow: 0 4px 0 var(--panel-edge-dark);
+    border-radius: 6px;
+    padding: 14px 6px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+  .option-btn .oe { font-size: 26px; }
+  .option-btn:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--panel-edge-dark); }
+  .option-btn.correct { background: var(--accent-light); border-color: var(--accent-dark); }
+  .option-btn.wrong { background: #f7d3d3; border-color: var(--danger-dark); }
+  .option-btn:disabled { cursor: default; }
+  .hint-box {
+    margin-top: 14px;
+    text-align: center;
+    font-size: 13px;
+    color: var(--accent2-dark);
+    min-height: 18px;
+  }
+  .reveal-box {
+    margin-top: 16px;
+    text-align: center;
+  }
+  .reveal-box .en { font-family: 'Press Start 2P', monospace; font-size: 13px; margin-bottom: 8px; }
+  .reveal-box .zh { font-size: 20px; margin-bottom: 12px; }
+
+  /* ---------- matching game ---------- */
+  .match-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  .match-card {
+    aspect-ratio: 1 / 0.85;
+    background: var(--card-back);
+    border: 3px solid var(--block-dark);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+    cursor: pointer;
+    position: relative;
+    color: #fff;
+  }
+  .match-card .face {
+    font-size: 30px;
+    text-align: center;
+    padding: 4px;
+  }
+  .match-card.text-card .face {
+    font-family: 'Noto Sans TC', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--ink);
+  }
+  .match-card.hidden-face { background: var(--card-back); }
+  .match-card.hidden-face .face { display: none; }
+  .match-card.flipped { background: var(--panel); border-color: var(--panel-edge-dark); }
+  .match-card.flipped.text-card { background: var(--panel); }
+  .match-card.matched {
+    background: var(--accent-light);
+    border-color: var(--accent-dark);
+    cursor: default;
+  }
+  .match-card.mismatch { background: #f7d3d3; border-color: var(--danger-dark); }
+  .match-card::before {
+    content: '?';
+    font-family: 'Press Start 2P', monospace;
+    color: rgba(255,255,255,0.85);
+  }
+  .match-card.flipped::before, .match-card.matched::before { content: ''; }
+
+  /* ---------- complete screen ---------- */
+  #screen-complete { text-align: center; }
+  #screen-complete .big-emoji { font-size: 56px; margin-bottom: 6px; }
+  #screen-complete h2 { font-family: 'Press Start 2P', monospace; font-size: 16px; }
+  .earned-box {
+    margin: 18px 0;
+    padding: 16px;
+    background: var(--accent-light);
+    border-radius: 6px;
+    border: 3px solid var(--accent-dark);
+    font-family: 'Press Start 2P', monospace;
+    font-size: 13px;
+  }
+
+  /* ---------- flying block animation ---------- */
+  .flying-block {
+    position: fixed;
+    font-size: 26px;
+    z-index: 999;
+    pointer-events: none;
+    transition: transform 0.7s cubic-bezier(.2,.8,.3,1), opacity 0.7s ease;
+  }
+
+  @keyframes pop-in {
+    0% { transform: scale(0.7); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  .pixel-panel, .mode-card, .day-card, .word-card {
+    animation: pop-in 0.25s ease;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .flying-block, .pixel-panel, .mode-card, .day-card, .word-card { animation: none !important; transition: none !important; }
+  }
+</style>
+
+<div id="app">
+
+  <!-- ===================== MODE SELECT ===================== -->
+  <section id="screen-mode" class="screen">
+    <div class="logo-blocks">
+      <div class="logo-block"></div><div class="logo-block"></div><div class="logo-block"></div>
+    </div>
+    <h1 class="pixel-font">BLOCK WORD QUEST</h1>
+    <p class="tagline">每天 10-15 分鐘，挖出新單字！</p>
+
+    <div class="mode-card pixel-panel" id="btn-grade1">
+      <span class="emoji">🐣</span>
+      <h2>Hardy</h2>
+      <p>一年級 · 單字 + 短句 + 配對遊戲</p>
+    </div>
+
+    <div class="mode-card pixel-panel locked" id="btn-grade6">
+      <span class="badge-soon pixel-font">COMING SOON</span>
+      <span class="emoji">📖</span>
+      <h2>Scott</h2>
+      <p>六年級 · 單字複習 + 故事朗讀 + 理解檢核</p>
+    </div>
+  </section>
+
+  <!-- ===================== GRADE 1 FLOW ===================== -->
+  <div id="grade1-flow" hidden>
+    <div id="g1-header">
+      <button class="back-btn" id="g1-back">←</button>
+      <div id="g1-stats">
+        <div class="stats-row">
+          <span id="level-label">Lv.1</span>
+          <span id="block-count">🧱<span id="block-total">0</span></span>
+        </div>
+        <div class="xp-bar-track"><div class="xp-bar-fill" id="xp-fill"></div></div>
+      </div>
+    </div>
+
+    <!-- HOME / DAY SELECT (calendar) -->
+    <section id="screen-home" class="screen pixel-panel">
+      <div class="profile-name" id="profile-name">HARDY</div>
+      <div class="cal-header">
+        <button class="cal-nav" id="cal-prev">‹</button>
+        <div class="cal-title" id="cal-title"></div>
+        <button class="cal-nav" id="cal-next">›</button>
+      </div>
+      <div class="cal-weekdays">
+        <span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span>
+      </div>
+      <div class="cal-grid" id="cal-grid"></div>
+      <div class="cal-legend">
+        <span>🔓 可以玩</span>
+        <span>🔒 還沒到</span>
+        <span>✅ 已完成</span>
+      </div>
+      <div class="note-box" id="storage-note" hidden>
+        ⚠️ 目前無法連線儲存進度，這次遊玩結束後可能不會保留紀錄。
+      </div>
+    </section>
+
+    <!-- WORD CARDS -->
+    <section id="screen-words" class="screen pixel-panel" hidden>
+      <div class="word-stage">
+        <div class="progress-dots" id="word-dots"></div>
+        <div class="word-card pixel-panel" id="word-card-inner">
+          <div class="word-emoji" id="w-emoji">🐶</div>
+          <div class="word-en" id="w-en">dog</div>
+          <button class="speak-btn" id="w-speak">🔊 聽發音</button>
+          <div class="word-zh" id="w-zh"></div>
+        </div>
+        <div class="nav-row">
+          <button class="pixel-btn secondary" id="w-prev">上一個</button>
+          <button class="pixel-btn" id="w-next">下一個</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SENTENCE PRACTICE -->
+    <section id="screen-sentence" class="screen pixel-panel" hidden>
+      <div class="progress-dots" id="sent-dots"></div>
+      <div class="sentence-target">
+        <div class="word-emoji" id="s-emoji">🐶</div>
+      </div>
+      <div class="sentence-line" id="s-line"></div>
+      <div class="option-grid" id="s-options"></div>
+      <div class="hint-box" id="s-hint"></div>
+      <div class="reveal-box" id="s-reveal" hidden>
+        <div class="en" id="s-reveal-en"></div>
+        <div class="zh" id="s-reveal-zh"></div>
+        <button class="speak-btn" id="s-reveal-speak">🔊 再聽一次</button>
+        <div style="height:14px"></div>
+        <button class="pixel-btn" id="s-continue">繼續 →</button>
+      </div>
+    </section>
+
+    <!-- MATCHING GAME -->
+    <section id="screen-match" class="screen pixel-panel" hidden>
+      <h2 class="section-title pixel-font" style="text-align:center">配對遊戲</h2>
+      <div class="match-grid" id="match-grid"></div>
+    </section>
+
+    <!-- DAY COMPLETE -->
+    <section id="screen-complete" class="screen pixel-panel" hidden>
+      <div class="big-emoji">🎉</div>
+      <h2>DAY COMPLETE!</h2>
+      <div class="earned-box">
+        今天挖到 <span id="earned-blocks">0</span> 個方塊 🧱
+      </div>
+      <button class="pixel-btn" id="complete-home">回到選單</button>
+    </section>
+  </div>
+
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ===================== CONTENT DATA ===================== */
+  const GRADE1_DAYS = [
+    {
+      id: 'day1',
+      date: '2026-09-10',
+      title: '動物 Animals',
+      emoji: '🐾',
+      pattern: 'I see a ___.',
+      words: [
+        { en: 'dog', emoji: '🐶', zh: [['我','ㄨㄛˇ'],['看','ㄎㄢˋ'],['到','ㄉㄠˋ'],['一','ㄧ'],['隻','ㄓ'],['狗','ㄍㄡˇ']], wordZh: [['狗','ㄍㄡˇ']] },
+        { en: 'cat', emoji: '🐱', zh: [['我','ㄨㄛˇ'],['看','ㄎㄢˋ'],['到','ㄉㄠˋ'],['一','ㄧ'],['隻','ㄓ'],['貓','ㄇㄠ']], wordZh: [['貓','ㄇㄠ']] },
+        { en: 'bird', emoji: '🐦', zh: [['我','ㄨㄛˇ'],['看','ㄎㄢˋ'],['到','ㄉㄠˋ'],['一','ㄧ'],['隻','ㄓ'],['鳥','ㄋㄧㄠˇ']], wordZh: [['鳥','ㄋㄧㄠˇ']] },
+        { en: 'fish', emoji: '🐟', zh: [['我','ㄨㄛˇ'],['看','ㄎㄢˋ'],['到','ㄉㄠˋ'],['一','ㄧ'],['條','ㄊㄧㄠˊ'],['魚','ㄩˊ']], wordZh: [['魚','ㄩˊ']] },
+        { en: 'rabbit', emoji: '🐰', zh: [['我','ㄨㄛˇ'],['看','ㄎㄢˋ'],['到','ㄉㄠˋ'],['一','ㄧ'],['隻','ㄓ'],['兔','ㄊㄨˋ'],['子','˙ㄗ']], wordZh: [['兔','ㄊㄨˋ'],['子','˙ㄗ']] }
+      ]
+    },
+    {
+      id: 'day2',
+      date: '2026-09-11',
+      title: '家人 Family',
+      emoji: '👪',
+      pattern: 'This is my ___.',
+      words: [
+        { en: 'mom', emoji: '👩', zh: [['這','ㄓㄜˋ'],['是','ㄕˋ'],['我','ㄨㄛˇ'],['的','˙ㄉㄜ'],['媽','ㄇㄚ'],['媽','˙ㄇㄚ']], wordZh: [['媽','ㄇㄚ'],['媽','˙ㄇㄚ']] },
+        { en: 'dad', emoji: '👨', zh: [['這','ㄓㄜˋ'],['是','ㄕˋ'],['我','ㄨㄛˇ'],['的','˙ㄉㄜ'],['爸','ㄅㄚˋ'],['爸','˙ㄅㄚ']], wordZh: [['爸','ㄅㄚˋ'],['爸','˙ㄅㄚ']] },
+        { en: 'sister', emoji: '👧', zh: [['這','ㄓㄜˋ'],['是','ㄕˋ'],['我','ㄨㄛˇ'],['的','˙ㄉㄜ'],['姊','ㄐㄧㄝˇ'],['姊','˙ㄐㄧㄝ']], wordZh: [['姊','ㄐㄧㄝˇ'],['姊','˙ㄐㄧㄝ']] },
+        { en: 'brother', emoji: '👦', zh: [['這','ㄓㄜˋ'],['是','ㄕˋ'],['我','ㄨㄛˇ'],['的','˙ㄉㄜ'],['哥','ㄍㄜ'],['哥','˙ㄍㄜ']], wordZh: [['哥','ㄍㄜ'],['哥','˙ㄍㄜ']] },
+        { en: 'grandma', emoji: '👵', zh: [['這','ㄓㄜˋ'],['是','ㄕˋ'],['我','ㄨㄛˇ'],['的','˙ㄉㄜ'],['奶','ㄋㄞˇ'],['奶','˙ㄋㄞ']], wordZh: [['奶','ㄋㄞˇ'],['奶','˙ㄋㄞ']] }
+      ]
+    },
+    {
+      id: 'day3',
+      date: '2026-09-12',
+      title: '食物 Food',
+      emoji: '🍎',
+      pattern: 'I like ___.',
+      words: [
+        { en: 'apple', emoji: '🍎', zh: [['我','ㄨㄛˇ'],['喜','ㄒㄧˇ'],['歡','ㄏㄨㄢ'],['吃','ㄔ'],['蘋','ㄆㄧㄥˊ'],['果','ㄍㄨㄛˇ']], wordZh: [['蘋','ㄆㄧㄥˊ'],['果','ㄍㄨㄛˇ']] },
+        { en: 'milk', emoji: '🥛', zh: [['我','ㄨㄛˇ'],['喜','ㄒㄧˇ'],['歡','ㄏㄨㄢ'],['喝','ㄏㄜ'],['牛','ㄋㄧㄡˊ'],['奶','ㄋㄞˇ']], wordZh: [['牛','ㄋㄧㄡˊ'],['奶','ㄋㄞˇ']] },
+        { en: 'rice', emoji: '🍚', zh: [['我','ㄨㄛˇ'],['喜','ㄒㄧˇ'],['歡','ㄏㄨㄢ'],['吃','ㄔ'],['飯','ㄈㄢˋ']], wordZh: [['飯','ㄈㄢˋ']] },
+        { en: 'egg', emoji: '🥚', zh: [['我','ㄨㄛˇ'],['喜','ㄒㄧˇ'],['歡','ㄏㄨㄢ'],['吃','ㄔ'],['蛋','ㄉㄢˋ']], wordZh: [['蛋','ㄉㄢˋ']] },
+        { en: 'bread', emoji: '🍞', zh: [['我','ㄨㄛˇ'],['喜','ㄒㄧˇ'],['歡','ㄏㄨㄢ'],['吃','ㄔ'],['麵','ㄇㄧㄢˋ'],['包','ㄅㄠ']], wordZh: [['麵','ㄇㄧㄢˋ'],['包','ㄅㄠ']] }
+      ]
+    }
+  ];
+
+  const BLOCKS_PER_LEVEL = 10;
+
+  /* ===================== STATE ===================== */
+  let state = {
+    totalBlocks: 0,
+    days: {} // dayId -> { wordsDone, sentenceDone, matchDone, blocksEarned }
+  };
+  let dbDoc = null;
+  let dbReady = false;
+
+  let session = {
+    dayId: null,
+    wordIdx: 0,
+    sentenceOrder: [],
+    sentenceIdx: 0,
+    sentenceAttempts: 0,
+    sessionBlocks: 0,
+    matchCards: [],
+    matchFlipped: [],
+    matchLock: false
+  };
+
+  /* ===================== HELPERS ===================== */
+  function $(id) { return document.getElementById(id); }
+  function show(id) {
+    document.querySelectorAll('.screen').forEach(function (s) { s.hidden = true; });
+    $(id).hidden = false;
+  }
+  function renderRuby(pairs) {
+    return pairs.map(function (p) {
+      const ch = p[0];
+      const symbols = Array.from(p[1]);
+      let leadTone = '', trailTone = '';
+      if (symbols.length && symbols[0] === '˙') { leadTone = symbols.shift(); }
+      else if (symbols.length && 'ˊˇˋ'.indexOf(symbols[symbols.length - 1]) !== -1) { trailTone = symbols.pop(); }
+
+      const colHtml = '<span class="zy-col">' + symbols.map(function (s) { return '<span>' + s + '</span>'; }).join('') + '</span>';
+      const toneHtml = leadTone
+        ? '<span class="zy-tone zy-tone-lead">' + leadTone + '</span>'
+        : (trailTone ? '<span class="zy-tone zy-tone-trail">' + trailTone + '</span>' : '');
+
+      return '<span class="zh-unit"><span class="zh-char">' + ch + '</span><span class="zh-zy">' + colHtml + toneHtml + '</span></span>';
+    }).join('');
+  }
+  function speak(text) {
+    try {
+      if (!('speechSynthesis' in window)) return;
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = 'en-US';
+      u.rate = 0.9;
+      window.speechSynthesis.speak(u);
+    } catch (e) { /* speech unavailable, ignore */ }
+  }
+  function shuffle(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      const t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+  function dayById(id) { return GRADE1_DAYS.filter(function (d) { return d.id === id; })[0]; }
+
+  const daysByDate = {};
+  GRADE1_DAYS.forEach(function (d) { daysByDate[d.date] = d; });
+
+  function pad2(n) { return n < 10 ? '0' + n : '' + n; }
+  function toIso(y, m, d) { return y + '-' + pad2(m + 1) + '-' + pad2(d); }
+  const now = new Date();
+  const todayIso = toIso(now.getFullYear(), now.getMonth(), now.getDate());
+  let calView = { year: now.getFullYear(), month: now.getMonth() };
+
+  function persist() {
+    if (!dbReady || !dbDoc) return;
+    dbDoc.set({ totalBlocks: state.totalBlocks, days: state.days, updatedAt: new Date().toISOString() })
+      .catch(function () { /* best-effort; UI already reflects local state */ });
+  }
+
+  function ensureDayState(dayId) {
+    if (!state.days[dayId]) {
+      state.days[dayId] = { wordsDone: false, sentenceDone: false, matchDone: false, blocksEarned: 0 };
+    }
+    return state.days[dayId];
+  }
+
+  function updateHeaderStats() {
+    const level = Math.floor(state.totalBlocks / BLOCKS_PER_LEVEL) + 1;
+    const into = state.totalBlocks % BLOCKS_PER_LEVEL;
+    $('level-label').textContent = 'Lv.' + level;
+    $('block-total').textContent = state.totalBlocks;
+    $('xp-fill').style.width = (into / BLOCKS_PER_LEVEL * 100) + '%';
+  }
+
+  function flyBlock(fromEl) {
+    const target = $('block-count');
+    if (!fromEl || !target) return;
+    const fr = fromEl.getBoundingClientRect();
+    const tr = target.getBoundingClientRect();
+    const el = document.createElement('div');
+    el.className = 'flying-block';
+    el.textContent = '🧱';
+    el.style.left = (fr.left + fr.width / 2 - 13) + 'px';
+    el.style.top = (fr.top + fr.height / 2 - 13) + 'px';
+    document.body.appendChild(el);
+    requestAnimationFrame(function () {
+      el.style.transform = 'translate(' + (tr.left - fr.left) + 'px,' + (tr.top - fr.top) + 'px) scale(0.4)';
+      el.style.opacity = '0.3';
+    });
+    setTimeout(function () { el.remove(); }, 750);
+  }
+
+  function awardBlocks(n, fromEl) {
+    session.sessionBlocks += n;
+    for (let i = 0; i < n; i++) { flyBlock(fromEl); }
+    setTimeout(function () {
+      state.totalBlocks += n;
+      updateHeaderStats();
+      persist();
+    }, fromEl ? 400 : 0);
+  }
+
+  /* ===================== HOME / DAY SELECT (calendar) ===================== */
+  function renderHome() {
+    $('cal-title').textContent = calView.year + '年' + (calView.month + 1) + '月';
+
+    const grid = $('cal-grid');
+    grid.innerHTML = '';
+
+    const firstWeekday = new Date(calView.year, calView.month, 1).getDay();
+    const daysInMonth = new Date(calView.year, calView.month + 1, 0).getDate();
+
+    for (let i = 0; i < firstWeekday; i++) {
+      const blank = document.createElement('div');
+      blank.className = 'cal-cell blank';
+      grid.appendChild(blank);
+    }
+
+    for (let d = 1; d <= daysInMonth; d++) {
+      const iso = toIso(calView.year, calView.month, d);
+      const cell = document.createElement('div');
+      const contentDay = daysByDate[iso];
+
+      if (!contentDay) {
+        cell.className = 'cal-cell plain';
+        cell.textContent = d;
+      } else {
+        const unlocked = iso <= todayIso;
+        const ds = ensureDayState(contentDay.id);
+        const done = ds.wordsDone && ds.sentenceDone && ds.matchDone;
+        cell.className = 'cal-cell has-content ' + (unlocked ? 'unlocked' : 'locked');
+        cell.innerHTML =
+          '<span>' + d + '</span>' +
+          '<span class="cal-icon">' + (unlocked ? contentDay.emoji : '🔒') + '</span>' +
+          (done ? '<span class="cal-badge">✅</span>' : '');
+        if (unlocked) {
+          cell.addEventListener('click', function () { startDay(contentDay.id); });
+        }
+      }
+
+      if (iso === todayIso) { cell.classList.add('is-today'); }
+      grid.appendChild(cell);
+    }
+  }
+
+  $('cal-prev').addEventListener('click', function () {
+    calView.month--;
+    if (calView.month < 0) { calView.month = 11; calView.year--; }
+    renderHome();
+  });
+  $('cal-next').addEventListener('click', function () {
+    calView.month++;
+    if (calView.month > 11) { calView.month = 0; calView.year++; }
+    renderHome();
+  });
+
+  function startDay(dayId) {
+    session.dayId = dayId;
+    session.wordIdx = 0;
+    session.sessionBlocks = 0;
+    show('screen-words');
+    renderWordCard();
+  }
+
+  /* ===================== WORD CARDS ===================== */
+  function renderWordCard() {
+    const day = dayById(session.dayId);
+    const word = day.words[session.wordIdx];
+    $('w-emoji').textContent = word.emoji;
+    $('w-en').textContent = word.en;
+    $('w-zh').innerHTML = renderRuby(word.wordZh);
+    $('w-prev').disabled = session.wordIdx === 0;
+    $('w-next').textContent = (session.wordIdx === day.words.length - 1) ? '去做短句練習 →' : '下一個';
+
+    const dots = $('word-dots');
+    dots.innerHTML = '';
+    day.words.forEach(function (_, i) {
+      const dot = document.createElement('span');
+      if (i < session.wordIdx) dot.className = 'done';
+      else if (i === session.wordIdx) dot.className = 'current';
+      dots.appendChild(dot);
+    });
+  }
+
+  $('w-speak').addEventListener('click', function () {
+    const day = dayById(session.dayId);
+    speak(day.words[session.wordIdx].en);
+  });
+  $('w-prev').addEventListener('click', function () {
+    if (session.wordIdx > 0) { session.wordIdx--; renderWordCard(); }
+  });
+  $('w-next').addEventListener('click', function () {
+    const day = dayById(session.dayId);
+    awardBlocks(1, $('w-next'));
+    if (session.wordIdx < day.words.length - 1) {
+      session.wordIdx++;
+      renderWordCard();
+    } else {
+      ensureDayState(day.id).wordsDone = true;
+      startSentencePractice();
+    }
+  });
+
+  /* ===================== SENTENCE PRACTICE ===================== */
+  function startSentencePractice() {
+    const day = dayById(session.dayId);
+    session.sentenceOrder = shuffle(day.words.map(function (_, i) { return i; }));
+    session.sentenceIdx = 0;
+    show('screen-sentence');
+    renderSentenceRound();
+  }
+
+  function renderSentenceRound() {
+    const day = dayById(session.dayId);
+    const word = day.words[session.sentenceOrder[session.sentenceIdx]];
+    session.sentenceAttempts = 0;
+
+    $('s-emoji').textContent = word.emoji;
+    $('s-line').innerHTML = day.pattern.replace('___', '<span class="blank"></span>');
+    $('s-hint').textContent = '';
+    $('s-reveal').hidden = true;
+
+    const dots = $('sent-dots');
+    dots.innerHTML = '';
+    day.words.forEach(function (_, i) {
+      const dot = document.createElement('span');
+      if (i < session.sentenceIdx) dot.className = 'done';
+      else if (i === session.sentenceIdx) dot.className = 'current';
+      dots.appendChild(dot);
+    });
+
+    const options = shuffle(day.words).slice(0, 4);
+    if (options.indexOf(word) === -1) { options[0] = word; }
+    const shuffledOptions = shuffle(options);
+
+    const grid = $('s-options');
+    grid.innerHTML = '';
+    grid.hidden = false;
+    shuffledOptions.forEach(function (opt) {
+      const btn = document.createElement('button');
+      btn.className = 'option-btn';
+      btn.innerHTML = '<span class="oe">' + opt.emoji + '</span><span>' + opt.en + '</span>';
+      btn.addEventListener('click', function () { handleSentenceAnswer(opt, word, btn); });
+      grid.appendChild(btn);
+    });
+  }
+
+  function handleSentenceAnswer(chosen, correct, btnEl) {
+    const isCorrect = chosen.en === correct.en;
+    const grid = $('s-options');
+
+    if (isCorrect) {
+      Array.prototype.forEach.call(grid.children, function (b) { b.disabled = true; });
+      btnEl.classList.add('correct');
+      if (session.sentenceAttempts === 0) { awardBlocks(1, btnEl); }
+      else { awardBlocks(1, btnEl); }
+      setTimeout(function () { revealSentence(correct); }, 500);
+      return;
+    }
+
+    session.sentenceAttempts++;
+    btnEl.classList.add('wrong');
+    btnEl.disabled = true;
+
+    if (session.sentenceAttempts === 1) {
+      $('s-hint').textContent = '再想想！提示：中文意思是「' + correct.wordZh.map(function (p) { return p[0]; }).join('') + '」';
+    } else {
+      Array.prototype.forEach.call(grid.children, function (b) { b.disabled = true; });
+      setTimeout(function () { revealSentence(correct, true); }, 300);
+    }
+  }
+
+  function revealSentence(word, wasRevealed) {
+    const day = dayById(session.dayId);
+    $('s-options').hidden = true;
+    $('s-hint').textContent = '';
+    $('s-reveal').hidden = false;
+    $('s-reveal-en').textContent = day.pattern.replace('___', word.en);
+    $('s-reveal-zh').innerHTML = renderRuby(word.zh);
+    $('s-reveal-speak').onclick = function () { speak(day.pattern.replace('___', word.en)); };
+    speak(day.pattern.replace('___', word.en));
+  }
+
+  $('s-continue').addEventListener('click', function () {
+    const day = dayById(session.dayId);
+    $('s-options').hidden = false;
+    if (session.sentenceIdx < day.words.length - 1) {
+      session.sentenceIdx++;
+      renderSentenceRound();
+    } else {
+      ensureDayState(day.id).sentenceDone = true;
+      startMatchGame();
+    }
+  });
+
+  /* ===================== MATCHING GAME ===================== */
+  function startMatchGame() {
+    const day = dayById(session.dayId);
+    const cards = [];
+    day.words.forEach(function (w) {
+      cards.push({ key: w.en, type: 'emoji', display: w.emoji });
+      cards.push({ key: w.en, type: 'text', display: w.en });
+    });
+    session.matchCards = shuffle(cards);
+    session.matchFlipped = [];
+    session.matchLock = false;
+    session.matchedCount = 0;
+    show('screen-match');
+    renderMatchGrid();
+  }
+
+  function renderMatchGrid() {
+    const grid = $('match-grid');
+    grid.innerHTML = '';
+    session.matchCards.forEach(function (card, idx) {
+      const el = document.createElement('div');
+      el.className = 'match-card hidden-face' + (card.type === 'text' ? ' text-card' : '');
+      el.dataset.idx = idx;
+      const face = document.createElement('div');
+      face.className = 'face';
+      face.textContent = card.display;
+      el.appendChild(face);
+      el.addEventListener('click', function () { flipMatchCard(idx, el); });
+      grid.appendChild(el);
+    });
+  }
+
+  function flipMatchCard(idx, el) {
+    if (session.matchLock) return;
+    if (el.classList.contains('flipped') || el.classList.contains('matched')) return;
+    el.classList.remove('hidden-face');
+    el.classList.add('flipped');
+    session.matchFlipped.push({ idx: idx, el: el });
+
+    if (session.matchFlipped.length === 2) {
+      session.matchLock = true;
+      const a = session.matchFlipped[0];
+      const b = session.matchFlipped[1];
+      const cardA = session.matchCards[a.idx];
+      const cardB = session.matchCards[b.idx];
+
+      if (cardA.key === cardB.key) {
+        a.el.classList.add('matched');
+        b.el.classList.add('matched');
+        awardBlocks(1, b.el);
+        session.matchedCount++;
+        session.matchFlipped = [];
+        session.matchLock = false;
+        if (session.matchedCount === session.matchCards.length / 2) {
+          setTimeout(finishDay, 500);
+        }
+      } else {
+        a.el.classList.add('mismatch');
+        b.el.classList.add('mismatch');
+        setTimeout(function () {
+          a.el.classList.remove('flipped', 'mismatch');
+          a.el.classList.add('hidden-face');
+          b.el.classList.remove('flipped', 'mismatch');
+          b.el.classList.add('hidden-face');
+          session.matchFlipped = [];
+          session.matchLock = false;
+        }, 700);
+      }
+    }
+  }
+
+  function finishDay() {
+    const day = dayById(session.dayId);
+    const ds = ensureDayState(day.id);
+    ds.matchDone = true;
+    ds.blocksEarned += session.sessionBlocks;
+    persist();
+    show('screen-complete');
+    $('earned-blocks').textContent = session.sessionBlocks;
+  }
+
+  $('complete-home').addEventListener('click', function () {
+    renderHome();
+    show('screen-home');
+  });
+
+  /* ===================== NAVIGATION ===================== */
+  $('btn-grade1').addEventListener('click', function () {
+    $('screen-mode').hidden = true;
+    $('grade1-flow').hidden = false;
+    updateHeaderStats();
+    renderHome();
+    show('screen-home');
+  });
+
+  $('g1-back').addEventListener('click', function () {
+    $('grade1-flow').hidden = true;
+    $('screen-mode').hidden = false;
+  });
+
+  /* ===================== DB / PERSISTENCE ===================== */
+  async function initDb() {
+    try {
+      if (!window.claude || !window.claude.use) { $('storage-note').hidden = false; return; }
+      const db = await window.claude.use('db');
+      if (!db) { $('storage-note').hidden = false; return; }
+      dbDoc = db.doc('progress/hardy');
+      const snap = await dbDoc.get();
+      if (snap.exists) {
+        const data = snap.data();
+        state.totalBlocks = typeof data.totalBlocks === 'number' ? data.totalBlocks : 0;
+        state.days = data.days || {};
+      }
+      dbReady = true;
+      updateHeaderStats();
+      renderHome();
+    } catch (e) {
+      $('storage-note').hidden = false;
+    }
+  }
+
+  /* ===================== INIT ===================== */
+  updateHeaderStats();
+  initDb();
+})();
+</script>
