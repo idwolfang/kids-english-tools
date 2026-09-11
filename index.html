@@ -1,3 +1,8 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>Block Word Quest</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
@@ -448,6 +453,7 @@
     gap: 10px;
     margin-top: 18px;
   }
+  .option-grid.one-col { grid-template-columns: 1fr; }
   .option-btn {
     font-family: 'Noto Sans TC', sans-serif;
     font-weight: 700;
@@ -506,6 +512,43 @@
   .spell-input.correct { border-color: var(--accent-dark); background: var(--accent-light); }
   .spell-input.wrong { border-color: var(--danger-dark); background: #f7d3d3; }
   .spell-input:disabled { opacity: 0.8; }
+
+  /* ---------- Scott: vocab review ---------- */
+  .word-en-big {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 22px;
+    color: var(--accent-dark);
+    margin-bottom: 14px;
+    word-break: break-word;
+  }
+
+  /* ---------- Scott: preview vocab cards ---------- */
+  .pv-pos {
+    display: inline-block;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 9px;
+    color: var(--ink-soft);
+    background: var(--panel-edge);
+    padding: 4px 8px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+  }
+  .pv-zh { font-size: 20px; margin: 8px 0 10px; }
+  .pv-def {
+    font-size: 13px;
+    color: var(--ink-soft);
+    line-height: 1.5;
+    padding: 0 6px;
+  }
+
+  /* ---------- Scott: story reading ---------- */
+  .story-text {
+    font-size: 15px;
+    line-height: 1.9;
+    color: var(--ink);
+    margin: 4px 0 18px;
+  }
+  .story-speak-btn { display: flex; margin: 0 auto; }
 
   /* ---------- matching game (left/right columns) ---------- */
   .match-hint {
@@ -607,6 +650,8 @@
     cursor: pointer;
   }
 </style>
+</head>
+<body>
 
 <div id="app">
 
@@ -624,16 +669,15 @@
       <p>一年級 · 單字 + 短句 + 配對遊戲</p>
     </div>
 
-    <div class="mode-card pixel-panel locked" id="btn-grade6">
-      <span class="badge-soon pixel-font">COMING SOON</span>
+    <div class="mode-card pixel-panel" id="btn-grade6">
       <span class="emoji">📖</span>
       <h2>Scott</h2>
       <p>六年級 · 單字複習 + 故事朗讀 + 理解檢核</p>
     </div>
   </section>
 
-  <!-- ===================== GRADE 1 FLOW ===================== -->
-  <div id="grade1-flow" hidden>
+  <!-- ===================== SHARED PROFILE FLOW (Hardy or Scott) ===================== -->
+  <div id="profile-flow" hidden>
     <div id="g1-header">
       <button class="back-btn" id="g1-back">←</button>
     </div>
@@ -721,11 +765,73 @@
       </div>
     </section>
 
+    <!-- SCOTT: VOCAB REVIEW -->
+    <section id="screen-review" class="screen pixel-panel" hidden>
+      <div class="progress-dots" id="review-dots"></div>
+      <div class="sentence-target">
+        <div class="word-en-big" id="rv-en">breakfast</div>
+        <button class="speak-btn" id="rv-speak">🔊 聽發音</button>
+      </div>
+      <p class="spell-prompt">這個字是什麼意思？</p>
+      <div class="option-grid one-col" id="rv-options"></div>
+      <div class="hint-box" id="rv-hint"></div>
+      <div class="reveal-box" id="rv-reveal" hidden>
+        <div class="en" id="rv-reveal-word"></div>
+        <div class="zh" id="rv-reveal-zh"></div>
+        <button class="pixel-btn" id="rv-continue">繼續 →</button>
+      </div>
+    </section>
+
+    <!-- SCOTT: PREVIEW VOCAB CARDS -->
+    <section id="screen-preview" class="screen pixel-panel" hidden>
+      <div class="word-stage">
+        <div class="progress-dots" id="preview-dots"></div>
+        <div class="word-card pixel-panel">
+          <div class="pv-pos" id="pv-pos">n.</div>
+          <div class="word-en" id="pv-en">breakfast</div>
+          <button class="speak-btn" id="pv-speak">🔊 聽發音</button>
+          <div class="pv-zh" id="pv-zh">早餐</div>
+          <div class="pv-def" id="pv-def">the first meal you eat in the morning</div>
+        </div>
+        <div class="nav-row">
+          <button class="pixel-btn secondary" id="pv-prev">上一個</button>
+          <button class="pixel-btn" id="pv-next">下一個</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCOTT: STORY READING -->
+    <section id="screen-story" class="screen pixel-panel" hidden>
+      <h2 class="section-title pixel-font" style="text-align:center" id="story-title">Story</h2>
+      <p class="story-text" id="story-text"></p>
+      <button class="speak-btn story-speak-btn" id="story-speak">🔊 播放故事</button>
+      <button class="pixel-btn" id="story-continue" style="width:100%;margin-top:16px">去做理解檢核 →</button>
+    </section>
+
+    <!-- SCOTT: COMPREHENSION CHECK -->
+    <section id="screen-check" class="screen pixel-panel" hidden>
+      <div class="progress-dots" id="check-dots"></div>
+      <div id="check-mc-block">
+        <p class="spell-prompt" id="check-mc-q"></p>
+        <div class="option-grid one-col" id="check-mc-options"></div>
+      </div>
+      <div id="check-short-block" hidden>
+        <p class="spell-prompt" id="check-short-q"></p>
+        <input class="spell-input" id="check-short-input" type="text" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="type your answer">
+        <button class="pixel-btn" id="check-short-submit" style="width:100%;margin-top:12px">確認</button>
+      </div>
+      <div class="hint-box" id="check-hint"></div>
+      <div class="reveal-box" id="check-reveal" hidden>
+        <div class="zh" id="check-reveal-text"></div>
+        <button class="pixel-btn" id="check-continue">繼續 →</button>
+      </div>
+    </section>
+
     <!-- DAY COMPLETE -->
     <section id="screen-complete" class="screen pixel-panel" hidden>
       <div class="big-emoji">🎉</div>
       <h2>DAY COMPLETE!</h2>
-      <p class="done-msg">今天的單字、短句、配對都完成了，太棒了！</p>
+      <p class="done-msg" id="complete-msg">今天的單字、短句、配對都完成了，太棒了！</p>
       <button class="pixel-btn" id="complete-home">回到選單</button>
     </section>
   </div>
@@ -735,11 +841,20 @@
 <div class="test-bar" id="test-bar" hidden>
   <span class="label">🛠 測試模式</span>
   <select id="test-day"></select>
-  <button data-jump="words">單字卡</button>
-  <button data-jump="sentence">短句</button>
-  <button data-jump="match">配對</button>
-  <button data-jump="spell">拼字</button>
-  <button data-jump="complete">完成畫面</button>
+  <span id="test-hardy-jumps">
+    <button data-jump="words">單字卡</button>
+    <button data-jump="sentence">短句</button>
+    <button data-jump="match">配對</button>
+    <button data-jump="spell">拼字</button>
+    <button data-jump="complete">完成畫面</button>
+  </span>
+  <span id="test-scott-jumps" hidden>
+    <button data-jump="review">單字複習</button>
+    <button data-jump="preview">生字卡</button>
+    <button data-jump="story">故事</button>
+    <button data-jump="check">理解檢核</button>
+    <button data-jump="scott-complete">完成畫面</button>
+  </span>
 </div>
 
 <script>
@@ -792,10 +907,120 @@
     }
   ];
 
+  const SCOTT_DAYS = [
+    {
+      id: 'sday1',
+      date: '2026-09-10',
+      title: 'Saturday Morning',
+      emoji: '🏀',
+      storyEn: "Ben wakes up at eight o'clock. He eats breakfast with his family. His mom makes eggs and toast. After breakfast, Ben rides his bike to the park. He meets his best friend, Leo, there. They play basketball together until noon. It is a happy morning.",
+      previewWords: [
+        { en: 'wake up', pos: '片語動詞', zh: '醒來', def: 'to stop sleeping and open your eyes' },
+        { en: 'breakfast', pos: 'n.', zh: '早餐', def: 'the first meal you eat in the morning' },
+        { en: 'toast', pos: 'n.', zh: '吐司', def: 'bread that is heated until it turns brown' },
+        { en: 'ride', pos: 'v.', zh: '騎', def: 'to sit on a bike and make it move' },
+        { en: 'bike', pos: 'n.', zh: '腳踏車', def: 'a vehicle with two wheels you pedal' },
+        { en: 'meet', pos: 'v.', zh: '遇見、碰面', def: 'to see and spend time with someone' },
+        { en: 'basketball', pos: 'n.', zh: '籃球', def: 'a game where players throw a ball into a hoop' },
+        { en: 'together', pos: 'adv.', zh: '一起', def: 'with another person, not alone' },
+        { en: 'until', pos: 'prep.', zh: '直到', def: 'up to a certain time' }
+      ],
+      mc: [
+        { q: "What time does Ben wake up?", options: ["Seven o'clock", "Eight o'clock", "Nine o'clock"], answer: 1 },
+        { q: "Who makes breakfast for Ben?", options: ["His dad", "His mom", "Leo"], answer: 1 },
+        { q: "Where does Ben ride his bike?", options: ["To school", "To the park", "To Leo's house"], answer: 1 }
+      ],
+      short: [
+        { q: "What does Ben eat for breakfast?", keywords: ['egg', 'toast'], requireAll: true, hintSentence: "His mom makes eggs and toast.", ref: "eggs and toast" },
+        { q: "What do Ben and Leo play together?", keywords: ['basketball'], requireAll: true, hintSentence: "They play basketball together until noon.", ref: "basketball" }
+      ]
+    },
+    {
+      id: 'sday2',
+      date: '2026-09-11',
+      title: 'After School',
+      emoji: '🎒',
+      storyEn: "Mia finishes school at three o'clock. She walks home with her neighbor, Zoe. On the way, they stop at a small shop and buy some snacks. At home, Mia does her homework before dinner. After dinner, she reads a book and goes to bed early.",
+      previewWords: [
+        { en: 'finish', pos: 'v.', zh: '完成、結束', def: 'to come to the end of something' },
+        { en: 'neighbor', pos: 'n.', zh: '鄰居', def: 'someone who lives near you' },
+        { en: 'stop', pos: 'v.', zh: '停下', def: 'to not continue moving or doing something' },
+        { en: 'shop', pos: 'n.', zh: '商店', def: 'a small place where you buy things' },
+        { en: 'snack', pos: 'n.', zh: '點心、零食', def: 'a small amount of food eaten between meals' },
+        { en: 'homework', pos: 'n.', zh: '功課', def: 'school work you do at home' },
+        { en: 'before', pos: 'prep.', zh: '在…之前', def: 'earlier than a certain time' },
+        { en: 'early', pos: 'adv.', zh: '早', def: 'near the beginning of a time period' }
+      ],
+      mc: [
+        { q: "What time does Mia finish school?", options: ["Two o'clock", "Three o'clock", "Four o'clock"], answer: 1 },
+        { q: "Who does Mia walk home with?", options: ["Her mom", "Zoe", "Her teacher"], answer: 1 },
+        { q: "Where do they stop on the way?", options: ["A park", "A small shop", "A library"], answer: 1 }
+      ],
+      short: [
+        { q: "What does Mia do before dinner?", keywords: ['homework'], requireAll: true, hintSentence: "At home, Mia does her homework before dinner.", ref: "homework / does her homework" },
+        { q: "What does Mia do after dinner?", keywords: ['read', 'book'], requireAll: true, hintSentence: "After dinner, she reads a book and goes to bed early.", ref: "reads a book" }
+      ]
+    },
+    {
+      id: 'sday3',
+      date: '2026-09-12',
+      title: 'A Rainy Day',
+      emoji: '🌧️',
+      storyEn: "It is raining outside today. Tom cannot play soccer with his friends. Instead, he stays home and draws a picture of a dragon. His little sister watches him and laughs. Later, they drink hot chocolate together and watch a movie. It is still a fun day.",
+      previewWords: [
+        { en: 'rain', pos: 'v.', zh: '下雨', def: 'when water falls from the sky' },
+        { en: 'outside', pos: 'adv.', zh: '在外面', def: 'not inside a building' },
+        { en: 'instead', pos: 'adv.', zh: '取而代之', def: 'in place of something else' },
+        { en: 'draw', pos: 'v.', zh: '畫', def: 'to make a picture with a pencil or pen' },
+        { en: 'laugh', pos: 'v.', zh: '笑', def: 'to make a sound when something is funny' },
+        { en: 'later', pos: 'adv.', zh: '之後', def: 'after the present time' },
+        { en: 'together', pos: 'adv.', zh: '一起', def: 'with another person, not alone' },
+        { en: 'still', pos: 'adv.', zh: '仍然', def: 'continuing up to this time' }
+      ],
+      mc: [
+        { q: "Why can't Tom play soccer?", options: ["He is sick", "It is raining", "He has no friends"], answer: 1 },
+        { q: "What does Tom draw?", options: ["A dragon", "A car", "A house"], answer: 0 },
+        { q: "What do they drink together?", options: ["Juice", "Milk", "Hot chocolate"], answer: 2 }
+      ],
+      short: [
+        { q: "Who watches Tom and laughs?", keywords: ['sister'], requireAll: true, hintSentence: "His little sister watches him and laughs.", ref: "his little sister" },
+        { q: "What do they do after they drink hot chocolate?", keywords: ['movie'], requireAll: true, hintSentence: "Later, they drink hot chocolate together and watch a movie.", ref: "watch a movie" }
+      ]
+    },
+    {
+      id: 'sday4',
+      date: '2026-09-13',
+      title: 'The School Trip',
+      emoji: '🦁',
+      storyEn: "Next Friday, our class will visit the zoo. Everyone is very excited about the trip. We will see lions, elephants, and monkeys there. Our teacher says we must stay together and listen carefully. After lunch, we will take photos near the big tiger.",
+      previewWords: [
+        { en: 'visit', pos: 'v.', zh: '參觀', def: 'to go and see a place' },
+        { en: 'excited', pos: 'adj.', zh: '興奮的', def: 'feeling very happy about something' },
+        { en: 'trip', pos: 'n.', zh: '旅行', def: 'a journey to a place' },
+        { en: 'elephant', pos: 'n.', zh: '大象', def: 'a very large animal with a long nose' },
+        { en: 'monkey', pos: 'n.', zh: '猴子', def: 'an animal that climbs trees and looks like a small person' },
+        { en: 'carefully', pos: 'adv.', zh: '小心地', def: 'in a way that pays close attention' },
+        { en: 'listen', pos: 'v.', zh: '聆聽', def: 'to pay attention to a sound' },
+        { en: 'photo', pos: 'n.', zh: '照片', def: 'a picture taken with a camera' },
+        { en: 'tiger', pos: 'n.', zh: '老虎', def: 'a large wild cat with orange and black stripes' }
+      ],
+      mc: [
+        { q: "Where will the class visit?", options: ["The museum", "The zoo", "The park"], answer: 1 },
+        { q: "What must the students do?", options: ["Run fast", "Stay together and listen carefully", "Buy snacks"], answer: 1 },
+        { q: "When will they take photos?", options: ["Before lunch", "After lunch", "In the morning"], answer: 1 }
+      ],
+      short: [
+        { q: "What animals will they see?", keywords: ['lion', 'elephant', 'monkey'], requireAll: false, hintSentence: "We will see lions, elephants, and monkeys there.", ref: "lions, elephants, and monkeys" },
+        { q: "What will they do near the big tiger?", keywords: ['photo'], requireAll: true, hintSentence: "After lunch, we will take photos near the big tiger.", ref: "take photos" }
+      ]
+    }
+  ];
+
   /* ===================== STATE ===================== */
   let state = {
-    days: {} // dayId -> { wordsDone, sentenceDone, matchDone, spellDone } (session-only, resets on reload)
+    days: {} // dayId -> per-day completion flags (session-only, resets on reload)
   };
+  let activeProfile = 'hardy'; // 'hardy' | 'scott'
 
   let session = {
     dayId: null,
@@ -813,7 +1038,15 @@
     spellQueue: [],
     spellTotalInitial: 0,
     spellPos: 0,
-    spellAttempts: 0
+    spellAttempts: 0,
+    reviewQueue: [],
+    reviewTotalInitial: 0,
+    reviewPos: 0,
+    reviewAttempts: 0,
+    previewIdx: 0,
+    checkMcIdx: 0,
+    checkShortIdx: 0,
+    checkAttempts: 0
   };
 
   /* ===================== HELPERS ===================== */
@@ -856,10 +1089,14 @@
     }
     return a;
   }
-  function dayById(id) { return GRADE1_DAYS.filter(function (d) { return d.id === id; })[0]; }
+  function dayById(id) {
+    return GRADE1_DAYS.concat(SCOTT_DAYS).filter(function (d) { return d.id === id; })[0];
+  }
 
-  const daysByDate = {};
-  GRADE1_DAYS.forEach(function (d) { daysByDate[d.date] = d; });
+  const hardyDaysByDate = {};
+  GRADE1_DAYS.forEach(function (d) { hardyDaysByDate[d.date] = d; });
+  const scottDaysByDate = {};
+  SCOTT_DAYS.forEach(function (d) { scottDaysByDate[d.date] = d; });
 
   function pad2(n) { return n < 10 ? '0' + n : '' + n; }
   function toIso(y, m, d) { return y + '-' + pad2(m + 1) + '-' + pad2(d); }
@@ -871,13 +1108,25 @@
 
   function ensureDayState(dayId) {
     if (!state.days[dayId]) {
-      state.days[dayId] = { wordsDone: false, sentenceDone: false, matchDone: false, spellDone: false };
+      state.days[dayId] = {
+        wordsDone: false, sentenceDone: false, matchDone: false, spellDone: false,
+        reviewDone: false, previewDone: false, storyDone: false, checkDone: false
+      };
     }
     return state.days[dayId];
   }
 
+  function isDayDone(ds, profile) {
+    return profile === 'scott'
+      ? (ds.reviewDone && ds.previewDone && ds.storyDone && ds.checkDone)
+      : (ds.wordsDone && ds.sentenceDone && ds.matchDone && ds.spellDone);
+  }
+
   /* ===================== HOME / DAY SELECT (calendar) ===================== */
   function renderHome() {
+    $('profile-name').textContent = activeProfile === 'scott' ? 'SCOTT' : 'HARDY';
+    const daysByDate = activeProfile === 'scott' ? scottDaysByDate : hardyDaysByDate;
+
     $('cal-title').textContent = calView.year + '年' + (calView.month + 1) + '月';
 
     const grid = $('cal-grid');
@@ -903,7 +1152,7 @@
       } else {
         const unlocked = TEST_MODE || iso <= todayIso;
         const ds = ensureDayState(contentDay.id);
-        const done = ds.wordsDone && ds.sentenceDone && ds.matchDone && ds.spellDone;
+        const done = isDayDone(ds, activeProfile);
         cell.className = 'cal-cell has-content ' + (unlocked ? 'unlocked' : 'locked');
         cell.innerHTML =
           '<span>' + d + '</span>' +
@@ -932,9 +1181,13 @@
 
   function startDay(dayId) {
     session.dayId = dayId;
-    session.wordIdx = 0;
-    show('screen-words');
-    renderWordCard();
+    if (activeProfile === 'scott') {
+      startVocabReview();
+    } else {
+      session.wordIdx = 0;
+      show('screen-words');
+      renderWordCard();
+    }
   }
 
   /* ===================== WORD CARDS ===================== */
@@ -1249,10 +1502,321 @@
     }
   });
 
+  /* ===================== SCOTT: VOCAB REVIEW ===================== */
+  function startVocabReview() {
+    const day = dayById(session.dayId);
+    session.reviewQueue = shuffle(day.previewWords).map(function (w) { return { word: w, isRetry: false }; });
+    session.reviewTotalInitial = session.reviewQueue.length;
+    session.reviewPos = 0;
+    show('screen-review');
+    renderReviewRound();
+  }
+
+  function renderReviewRound() {
+    const day = dayById(session.dayId);
+    const entry = session.reviewQueue[session.reviewPos];
+    const word = entry.word;
+    session.reviewAttempts = 0;
+
+    $('rv-en').textContent = word.en;
+    $('rv-hint').textContent = '';
+    $('rv-reveal').hidden = true;
+
+    const dots = $('review-dots');
+    if (entry.isRetry) {
+      dots.hidden = true;
+    } else {
+      dots.hidden = false;
+      dots.innerHTML = '';
+      for (let i = 0; i < session.reviewTotalInitial; i++) {
+        const dot = document.createElement('span');
+        if (i < session.reviewPos) dot.className = 'done';
+        else if (i === session.reviewPos) dot.className = 'current';
+        dots.appendChild(dot);
+      }
+    }
+
+    const pool = day.previewWords.filter(function (w) { return w.en !== word.en; });
+    const distractors = shuffle(pool).slice(0, 3);
+    const options = shuffle(distractors.concat([word]));
+
+    const grid = $('rv-options');
+    grid.hidden = false;
+    grid.innerHTML = '';
+    options.forEach(function (opt) {
+      const btn = document.createElement('button');
+      btn.className = 'option-btn';
+      btn.innerHTML = '<span>' + opt.zh + '</span>';
+      btn.addEventListener('click', function () { handleReviewAnswer(opt, word, btn); });
+      grid.appendChild(btn);
+    });
+  }
+
+  function handleReviewAnswer(chosen, correct, btnEl) {
+    const grid = $('rv-options');
+    if (chosen.en === correct.en) {
+      Array.prototype.forEach.call(grid.children, function (b) { b.disabled = true; });
+      btnEl.classList.add('correct');
+      setTimeout(function () { revealReview(correct, true); }, 450);
+      return;
+    }
+    session.reviewAttempts++;
+    btnEl.classList.add('wrong');
+    btnEl.disabled = true;
+    if (session.reviewAttempts === 1) {
+      $('rv-hint').textContent = '再想想！提示：這個字是「' + correct.pos + '」，開頭是「' + correct.en[0].toUpperCase() + '」';
+    } else {
+      Array.prototype.forEach.call(grid.children, function (b) { b.disabled = true; });
+      setTimeout(function () { revealReview(correct, false); }, 300);
+    }
+  }
+
+  function revealReview(word, wasCorrect) {
+    $('rv-options').hidden = true;
+    $('rv-hint').textContent = '';
+    $('rv-reveal').hidden = false;
+    $('rv-reveal-word').textContent = word.en;
+    $('rv-reveal-zh').textContent = word.zh + '（' + word.pos + '）';
+    speak(word.en);
+    if (!wasCorrect) {
+      session.reviewQueue.push({ word: word, isRetry: true });
+    }
+  }
+
+  $('rv-speak').addEventListener('click', function () {
+    speak($('rv-en').textContent);
+  });
+  $('rv-continue').addEventListener('click', function () {
+    $('rv-options').hidden = false;
+    session.reviewPos++;
+    if (session.reviewPos < session.reviewQueue.length) {
+      renderReviewRound();
+    } else {
+      ensureDayState(session.dayId).reviewDone = true;
+      startPreviewCards();
+    }
+  });
+
+  /* ===================== SCOTT: PREVIEW VOCAB CARDS ===================== */
+  function startPreviewCards() {
+    session.previewIdx = 0;
+    show('screen-preview');
+    renderPreviewCard();
+  }
+
+  function renderPreviewCard() {
+    const day = dayById(session.dayId);
+    const word = day.previewWords[session.previewIdx];
+    $('pv-pos').textContent = word.pos;
+    $('pv-en').textContent = word.en;
+    $('pv-zh').textContent = word.zh;
+    $('pv-def').textContent = word.def;
+    $('pv-prev').disabled = session.previewIdx === 0;
+    $('pv-next').textContent = (session.previewIdx === day.previewWords.length - 1) ? '去讀故事 →' : '下一個';
+
+    const dots = $('preview-dots');
+    dots.innerHTML = '';
+    day.previewWords.forEach(function (_, i) {
+      const dot = document.createElement('span');
+      if (i < session.previewIdx) dot.className = 'done';
+      else if (i === session.previewIdx) dot.className = 'current';
+      dots.appendChild(dot);
+    });
+  }
+
+  $('pv-speak').addEventListener('click', function () {
+    speak($('pv-en').textContent);
+  });
+  $('pv-prev').addEventListener('click', function () {
+    if (session.previewIdx > 0) { session.previewIdx--; renderPreviewCard(); }
+  });
+  $('pv-next').addEventListener('click', function () {
+    const day = dayById(session.dayId);
+    if (session.previewIdx < day.previewWords.length - 1) {
+      session.previewIdx++;
+      renderPreviewCard();
+    } else {
+      ensureDayState(day.id).previewDone = true;
+      startStory();
+    }
+  });
+
+  /* ===================== SCOTT: STORY READING ===================== */
+  function startStory() {
+    const day = dayById(session.dayId);
+    $('story-title').textContent = day.title;
+    $('story-text').textContent = day.storyEn;
+    show('screen-story');
+  }
+
+  $('story-speak').addEventListener('click', function () {
+    speak($('story-text').textContent);
+  });
+  $('story-continue').addEventListener('click', function () {
+    ensureDayState(session.dayId).storyDone = true;
+    startCheck();
+  });
+
+  /* ===================== SCOTT: COMPREHENSION CHECK ===================== */
+  function startCheck() {
+    session.checkMcIdx = 0;
+    session.checkShortIdx = 0;
+    show('screen-check');
+    renderCheckRound();
+  }
+
+  function checkTotalQuestions(day) { return day.mc.length + day.short.length; }
+  function checkCurrentIndex() { return session.checkMcIdx + session.checkShortIdx; }
+
+  function renderCheckDots(day) {
+    const dots = $('check-dots');
+    dots.innerHTML = '';
+    const total = checkTotalQuestions(day);
+    const current = checkCurrentIndex();
+    for (let i = 0; i < total; i++) {
+      const dot = document.createElement('span');
+      if (i < current) dot.className = 'done';
+      else if (i === current) dot.className = 'current';
+      dots.appendChild(dot);
+    }
+  }
+
+  function renderCheckRound() {
+    const day = dayById(session.dayId);
+    session.checkAttempts = 0;
+    $('check-hint').textContent = '';
+    $('check-reveal').hidden = true;
+    renderCheckDots(day);
+
+    if (session.checkMcIdx < day.mc.length) {
+      const q = day.mc[session.checkMcIdx];
+      $('check-mc-block').hidden = false;
+      $('check-short-block').hidden = true;
+      $('check-mc-q').textContent = q.q;
+      const grid = $('check-mc-options');
+      grid.hidden = false;
+      grid.innerHTML = '';
+      shuffleOptionsForMc(q).forEach(function (opt) {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.innerHTML = '<span>' + opt.text + '</span>';
+        btn.addEventListener('click', function () { handleCheckMcAnswer(opt.isCorrect, q, btn); });
+        grid.appendChild(btn);
+      });
+    } else {
+      const q = day.short[session.checkShortIdx];
+      $('check-mc-block').hidden = true;
+      $('check-short-block').hidden = false;
+      $('check-short-q').textContent = q.q;
+      const input = $('check-short-input');
+      input.value = '';
+      input.disabled = false;
+      input.className = 'spell-input';
+      $('check-short-submit').hidden = false;
+    }
+  }
+
+  function shuffleOptionsForMc(q) {
+    const opts = q.options.map(function (text, i) { return { text: text, isCorrect: i === q.answer }; });
+    return shuffle(opts);
+  }
+
+  function handleCheckMcAnswer(isCorrect, q, btnEl) {
+    const grid = $('check-mc-options');
+    if (isCorrect) {
+      Array.prototype.forEach.call(grid.children, function (b) { b.disabled = true; });
+      btnEl.classList.add('correct');
+      setTimeout(function () { advanceCheck(); }, 500);
+      return;
+    }
+    session.checkAttempts++;
+    btnEl.classList.add('wrong');
+    btnEl.disabled = true;
+    if (session.checkAttempts === 1) {
+      $('check-hint').textContent = '再想想！再讀一次故事找答案喔。';
+    } else {
+      Array.prototype.forEach.call(grid.children, function (b) { b.disabled = true; });
+      revealCheckAnswer(q.options[q.answer]);
+    }
+  }
+
+  function normalizeAnswer(s) { return s.trim().toLowerCase(); }
+
+  function handleCheckShortSubmit() {
+    const day = dayById(session.dayId);
+    const q = day.short[session.checkShortIdx];
+    const input = $('check-short-input');
+    const val = normalizeAnswer(input.value);
+    if (!val) return;
+
+    const isCorrect = q.requireAll
+      ? q.keywords.every(function (k) { return val.indexOf(k) !== -1; })
+      : q.keywords.some(function (k) { return val.indexOf(k) !== -1; });
+
+    if (isCorrect) {
+      input.disabled = true;
+      input.classList.add('correct');
+      $('check-short-submit').hidden = true;
+      setTimeout(function () { advanceCheck(); }, 450);
+      return;
+    }
+
+    session.checkAttempts++;
+    input.classList.add('wrong');
+    setTimeout(function () { input.classList.remove('wrong'); }, 400);
+
+    if (session.checkAttempts === 1) {
+      $('check-hint').textContent = '提示：再讀一次這句話——「' + q.hintSentence + '」';
+      input.value = '';
+      input.focus();
+    } else {
+      input.disabled = true;
+      $('check-short-submit').hidden = true;
+      revealCheckAnswer(q.ref);
+    }
+  }
+
+  function revealCheckAnswer(answerText) {
+    $('check-hint').textContent = '';
+    $('check-reveal').hidden = false;
+    $('check-reveal-text').textContent = '正解：' + answerText;
+  }
+
+  function advanceCheck() {
+    const day = dayById(session.dayId);
+    if (session.checkMcIdx < day.mc.length) { session.checkMcIdx++; }
+    else { session.checkShortIdx++; }
+
+    if (checkCurrentIndex() < checkTotalQuestions(day)) {
+      renderCheckRound();
+    } else {
+      finishScottDay();
+    }
+  }
+
+  $('check-short-submit').addEventListener('click', handleCheckShortSubmit);
+  $('check-short-input').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && !$('check-short-input').disabled) { handleCheckShortSubmit(); }
+  });
+  $('check-continue').addEventListener('click', function () {
+    advanceCheck();
+  });
+
+  function showDayComplete(message) {
+    $('complete-msg').textContent = message;
+    show('screen-complete');
+  }
+
   function finishDay() {
     const day = dayById(session.dayId);
     ensureDayState(day.id).spellDone = true;
-    show('screen-complete');
+    showDayComplete('今天的單字、短句、配對都完成了，太棒了！');
+  }
+
+  function finishScottDay() {
+    const day = dayById(session.dayId);
+    ensureDayState(day.id).checkDone = true;
+    showDayComplete('今天的單字複習、故事、理解檢核都完成了，做得好！');
   }
 
   $('complete-home').addEventListener('click', function () {
@@ -1262,14 +1826,23 @@
 
   /* ===================== NAVIGATION ===================== */
   $('btn-grade1').addEventListener('click', function () {
+    activeProfile = 'hardy';
     $('screen-mode').hidden = true;
-    $('grade1-flow').hidden = false;
+    $('profile-flow').hidden = false;
+    renderHome();
+    show('screen-home');
+  });
+
+  $('btn-grade6').addEventListener('click', function () {
+    activeProfile = 'scott';
+    $('screen-mode').hidden = true;
+    $('profile-flow').hidden = false;
     renderHome();
     show('screen-home');
   });
 
   $('g1-back').addEventListener('click', function () {
-    $('grade1-flow').hidden = true;
+    $('profile-flow').hidden = true;
     $('screen-mode').hidden = false;
   });
 
@@ -1280,24 +1853,49 @@
     GRADE1_DAYS.forEach(function (d) {
       const opt = document.createElement('option');
       opt.value = d.id;
-      opt.textContent = d.title;
+      opt.textContent = '[Hardy] ' + d.title;
       daySelect.appendChild(opt);
     });
+    SCOTT_DAYS.forEach(function (d) {
+      const opt = document.createElement('option');
+      opt.value = d.id;
+      opt.textContent = '[Scott] ' + d.title;
+      daySelect.appendChild(opt);
+    });
+
+    function isScottId(id) { return id.charAt(0) === 's'; }
+
+    function syncTestJumpGroups() {
+      const scott = isScottId(daySelect.value);
+      $('test-hardy-jumps').hidden = scott;
+      $('test-scott-jumps').hidden = !scott;
+    }
+    daySelect.addEventListener('change', syncTestJumpGroups);
+    syncTestJumpGroups();
 
     $('test-bar').addEventListener('click', function (e) {
       const btn = e.target.closest('button[data-jump]');
       if (!btn) return;
-      session.dayId = daySelect.value || GRADE1_DAYS[0].id;
+      const dayId = daySelect.value || GRADE1_DAYS[0].id;
+      session.dayId = dayId;
+      activeProfile = isScottId(dayId) ? 'scott' : 'hardy';
       $('screen-mode').hidden = true;
-      $('grade1-flow').hidden = false;
+      $('profile-flow').hidden = false;
 
       const jump = btn.dataset.jump;
       if (jump === 'words') { session.wordIdx = 0; show('screen-words'); renderWordCard(); }
       else if (jump === 'sentence') { startSentencePractice(); }
       else if (jump === 'match') { startMatchGame(); }
       else if (jump === 'spell') { startSpellPractice(); }
-      else if (jump === 'complete') { ensureDayState(session.dayId); show('screen-complete'); }
+      else if (jump === 'complete') { ensureDayState(dayId); show('screen-complete'); }
+      else if (jump === 'review') { startVocabReview(); }
+      else if (jump === 'preview') { startPreviewCards(); }
+      else if (jump === 'story') { startStory(); }
+      else if (jump === 'check') { startCheck(); }
+      else if (jump === 'scott-complete') { ensureDayState(dayId); show('screen-complete'); }
     });
   }
 })();
 </script>
+</body>
+</html>
