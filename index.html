@@ -77,40 +77,37 @@
   * { box-sizing: border-box; }
 
   /* Taiwan-style zhuyin: main symbols stacked vertically to the right of the
-     character; the tone mark sits beside the last symbol, offset further
-     right and smaller (not stacked as its own row). Built manually with
-     flexbox/absolute positioning rather than <ruby>/ruby-position:inter-character,
-     since that CSS value has inconsistent browser support (including iOS Safari). */
+     character, one row per symbol. A trailing tone mark (ˊˇˋ) rides on the
+     SAME row as the last symbol, right beside it; a neutral-tone dot (˙)
+     gets its own row directly above the first symbol. Built manually with
+     flexbox rather than <ruby>/ruby-position:inter-character, since that CSS
+     value has inconsistent browser support (including iOS Safari). */
   .zh-unit {
     display: inline-flex;
     align-items: center;
     margin-right: 10px;
   }
   .zh-zy {
-    position: relative;
-    display: inline-block;
-    margin-left: 3px;
-    padding-right: 0.55em;
-  }
-  .zy-col {
-    display: flex;
+    display: inline-flex;
     flex-direction: column;
     align-items: flex-start;
-    line-height: 1.05;
+    margin-left: 3px;
+    line-height: 1.15;
   }
-  .zy-col span {
+  .zy-row {
+    display: flex;
+    align-items: center;
+  }
+  .zy-row .zy-sym {
     font-size: 0.42em;
     color: var(--ink-soft);
-    display: block;
   }
-  .zy-tone {
-    position: absolute;
-    left: 100%;
-    font-size: 0.36em;
+  .zy-tone-char {
+    font-size: 0.34em;
     color: var(--ink-soft);
+    margin-left: 0.15em;
   }
-  .zy-tone-trail { bottom: 0.05em; }
-  .zy-tone-lead { top: 0.05em; }
+  .zy-tone-row .zy-tone-char { margin-left: 0; }
 
   body {
     margin: 0;
@@ -1062,12 +1059,20 @@
       if (symbols.length && symbols[0] === '˙') { leadTone = symbols.shift(); }
       else if (symbols.length && 'ˊˇˋ'.indexOf(symbols[symbols.length - 1]) !== -1) { trailTone = symbols.pop(); }
 
-      const colHtml = '<span class="zy-col">' + symbols.map(function (s) { return '<span>' + s + '</span>'; }).join('') + '</span>';
-      const toneHtml = leadTone
-        ? '<span class="zy-tone zy-tone-lead">' + leadTone + '</span>'
-        : (trailTone ? '<span class="zy-tone zy-tone-trail">' + trailTone + '</span>' : '');
+      let rows = '';
+      if (leadTone) {
+        rows += '<span class="zy-row zy-tone-row"><span class="zy-tone-char">' + leadTone + '</span></span>';
+      }
+      symbols.forEach(function (s, i) {
+        const isLast = i === symbols.length - 1;
+        if (isLast && trailTone) {
+          rows += '<span class="zy-row"><span class="zy-sym">' + s + '</span><span class="zy-tone-char">' + trailTone + '</span></span>';
+        } else {
+          rows += '<span class="zy-row"><span class="zy-sym">' + s + '</span></span>';
+        }
+      });
 
-      return '<span class="zh-unit"><span class="zh-char">' + ch + '</span><span class="zh-zy">' + colHtml + toneHtml + '</span></span>';
+      return '<span class="zh-unit"><span class="zh-char">' + ch + '</span><span class="zh-zy">' + rows + '</span></span>';
     }).join('');
   }
   function speak(text) {
