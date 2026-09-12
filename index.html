@@ -607,6 +607,48 @@
     font-size: 14px;
     color: var(--ink-soft);
   }
+  .complete-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 18px;
+  }
+
+  /* ---------- reward game (5-minute hard cutoff) ---------- */
+  #screen-reward { padding: 14px; }
+  .reward-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .reward-label {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 12px;
+    color: var(--ink);
+  }
+  .reward-timer {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 16px;
+    color: var(--accent2-dark);
+    font-variant-numeric: tabular-nums;
+  }
+  .reward-timer.low-time { color: var(--danger-dark); }
+  .reward-frame-wrap {
+    width: 100%;
+    aspect-ratio: 5 / 8;
+    max-height: 70vh;
+    border: 4px solid var(--panel-edge-dark);
+    border-radius: 6px;
+    overflow: hidden;
+    background: #000;
+  }
+  .reward-iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+  }
 
   @keyframes pop-in {
     0% { transform: scale(0.7); opacity: 0; }
@@ -833,7 +875,30 @@
       <div class="big-emoji">🎉</div>
       <h2>DAY COMPLETE!</h2>
       <p class="done-msg" id="complete-msg">今天的單字、短句、配對都完成了，太棒了！</p>
-      <button class="pixel-btn" id="complete-home">回到選單</button>
+      <div class="complete-actions">
+        <button class="pixel-btn amber" id="complete-play">🎮 玩小遊戲</button>
+        <button class="pixel-btn secondary" id="complete-home">回到選單</button>
+      </div>
+    </section>
+
+    <!-- REWARD GAME (5-minute hard cutoff) -->
+    <section id="screen-reward" class="screen pixel-panel" hidden>
+      <div class="reward-header">
+        <span class="reward-label">🎮 遊戲時間</span>
+        <span class="reward-timer" id="reward-timer">5:00</span>
+      </div>
+      <div class="reward-frame-wrap">
+        <iframe id="reward-iframe" class="reward-iframe" title="reward game"></iframe>
+      </div>
+      <button class="pixel-btn secondary" id="reward-end" style="width:100%;margin-top:12px">結束遊戲，回到選單</button>
+    </section>
+
+    <!-- REWARD TIME UP -->
+    <section id="screen-reward-done" class="screen pixel-panel" hidden>
+      <div class="big-emoji">⏰</div>
+      <h2>TIME'S UP!</h2>
+      <p class="done-msg">遊戲時間到囉，明天再來玩！</p>
+      <button class="pixel-btn" id="reward-done-home">回到選單</button>
     </section>
   </div>
 
@@ -2155,6 +2220,54 @@
     show('screen-complete');
   }
 
+  /* ===================== REWARD GAME (5-minute hard cutoff) ===================== */
+  const REWARD_GAME_URL = 'https://idwolfang.github.io/reward-games/';
+  const REWARD_DURATION_SEC = 5 * 60;
+  let rewardTimerId = null;
+  let rewardRemaining = 0;
+
+  function formatMMSS(totalSeconds) {
+    const m = Math.floor(totalSeconds / 60);
+    const s = totalSeconds % 60;
+    return m + ':' + (s < 10 ? '0' : '') + s;
+  }
+
+  function startRewardGame() {
+    rewardRemaining = REWARD_DURATION_SEC;
+    $('reward-timer').textContent = formatMMSS(rewardRemaining);
+    $('reward-timer').classList.remove('low-time');
+    $('reward-iframe').src = REWARD_GAME_URL;
+    show('screen-reward');
+
+    if (rewardTimerId) { clearInterval(rewardTimerId); }
+    rewardTimerId = setInterval(function () {
+      rewardRemaining--;
+      $('reward-timer').textContent = formatMMSS(Math.max(0, rewardRemaining));
+      if (rewardRemaining <= 10) { $('reward-timer').classList.add('low-time'); }
+      if (rewardRemaining <= 0) {
+        endRewardGame('timeup');
+      }
+    }, 1000);
+  }
+
+  function endRewardGame(reason) {
+    if (rewardTimerId) { clearInterval(rewardTimerId); rewardTimerId = null; }
+    $('reward-iframe').src = 'about:blank';
+    if (reason === 'timeup') {
+      show('screen-reward-done');
+    } else {
+      renderHome();
+      show('screen-home');
+    }
+  }
+
+  $('complete-play').addEventListener('click', startRewardGame);
+  $('reward-end').addEventListener('click', function () { endRewardGame('manual'); });
+  $('reward-done-home').addEventListener('click', function () {
+    renderHome();
+    show('screen-home');
+  });
+
   function finishDay() {
     const day = dayById(session.dayId);
     ensureDayState(day.id).spellDone = true;
@@ -2196,6 +2309,7 @@
   });
 
   $('g1-back').addEventListener('click', function () {
+    if (rewardTimerId) { clearInterval(rewardTimerId); rewardTimerId = null; $('reward-iframe').src = 'about:blank'; }
     $('profile-flow').hidden = true;
     $('screen-mode').hidden = false;
   });
