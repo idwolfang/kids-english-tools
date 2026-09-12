@@ -890,7 +890,7 @@
       <div class="reward-frame-wrap">
         <iframe id="reward-iframe" class="reward-iframe" title="reward game"></iframe>
       </div>
-      <button class="pixel-btn secondary" id="reward-end" style="width:100%;margin-top:12px">結束遊戲，回到選單</button>
+      <button class="pixel-btn secondary" id="reward-back-to-hub" style="width:100%;margin-top:12px">返回遊戲選單</button>
     </section>
 
     <!-- REWARD TIME UP -->
@@ -2250,19 +2250,16 @@
     }, 1000);
   }
 
-  function endRewardGame(reason) {
+  function endRewardGame() {
     if (rewardTimerId) { clearInterval(rewardTimerId); rewardTimerId = null; }
     $('reward-iframe').src = 'about:blank';
-    if (reason === 'timeup') {
-      show('screen-reward-done');
-    } else {
-      renderHome();
-      show('screen-home');
-    }
+    show('screen-reward-done');
   }
 
   $('complete-play').addEventListener('click', startRewardGame);
-  $('reward-end').addEventListener('click', function () { endRewardGame('manual'); });
+  $('reward-back-to-hub').addEventListener('click', function () {
+    $('reward-iframe').src = REWARD_GAME_URL;
+  });
   $('reward-done-home').addEventListener('click', function () {
     renderHome();
     show('screen-home');
