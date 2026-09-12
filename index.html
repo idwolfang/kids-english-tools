@@ -839,6 +839,8 @@
 
 </div>
 
+<iframe name="hidden_iframe" style="display:none;" title="progress logging (hidden)"></iframe>
+
 <div class="test-bar" id="test-bar" hidden>
   <span class="label">🛠 測試模式</span>
   <span id="test-current-day">請先點行事曆上的日期</span>
@@ -1414,6 +1416,41 @@
     $('test-current-day').textContent = day
       ? '目前：[' + (scott ? 'Scott' : 'Hardy') + '] ' + day.title
       : '請先點行事曆上的日期';
+  }
+
+  /* ===================== PROGRESS LOGGING (Google Form) ===================== */
+  const GOOGLE_FORM_ID = '1FAIpQLScl8dNHaL7urPZQut6To9WYh_qX_rWpQU3hn8TAYuFKluZsLg';
+  const GOOGLE_FORM_ENTRIES = {
+    child: 'entry.1500129491',
+    dayLabel: 'entry.2062457373',
+    stage: 'entry.452910041'
+  };
+
+  function logProgress(child, dayLabel, stage) {
+    try {
+      const form = document.createElement('form');
+      form.action = 'https://docs.google.com/forms/d/e/' + GOOGLE_FORM_ID + '/formResponse';
+      form.method = 'POST';
+      form.target = 'hidden_iframe';
+      form.style.display = 'none';
+
+      const fields = {};
+      fields[GOOGLE_FORM_ENTRIES.child] = child;
+      fields[GOOGLE_FORM_ENTRIES.dayLabel] = dayLabel;
+      fields[GOOGLE_FORM_ENTRIES.stage] = stage;
+
+      Object.keys(fields).forEach(function (name) {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = name;
+        input.value = fields[name];
+        form.appendChild(input);
+      });
+
+      document.body.appendChild(form);
+      form.submit();
+      setTimeout(function () { form.remove(); }, 1000);
+    } catch (e) { /* best-effort logging; never block the app on this */ }
   }
 
   function ensureDayState(dayId) {
@@ -2121,12 +2158,14 @@
   function finishDay() {
     const day = dayById(session.dayId);
     ensureDayState(day.id).spellDone = true;
+    if (!TEST_MODE) { logProgress('Hardy', day.title, '100%'); }
     showDayComplete('今天的單字、短句、配對都完成了，太棒了！');
   }
 
   function finishScottDay() {
     const day = dayById(session.dayId);
     ensureDayState(day.id).checkDone = true;
+    if (!TEST_MODE) { logProgress('Scott', day.title, '100%'); }
     showDayComplete('今天的單字複習、故事、理解檢核都完成了，做得好！');
   }
 
