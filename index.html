@@ -640,6 +640,7 @@
     border-top: 3px dashed var(--accent2);
   }
   .test-bar .label { font-weight: 700; color: var(--accent2); }
+  #test-current-day { color: #ccc; }
   .test-bar select, .test-bar button {
     font-size: 11px;
     padding: 4px 8px;
@@ -840,7 +841,7 @@
 
 <div class="test-bar" id="test-bar" hidden>
   <span class="label">🛠 測試模式</span>
-  <select id="test-day"></select>
+  <span id="test-current-day">請先點行事曆上的日期</span>
   <span id="test-hardy-jumps">
     <button data-jump="words">單字卡</button>
     <button data-jump="sentence">短句</button>
@@ -903,6 +904,118 @@
         { en: 'rice', emoji: '🍚', zh: [['我','ㄨㄛˇ'],['喜','ㄒㄧˇ'],['歡','ㄏㄨㄢ'],['吃','ㄔ'],['飯','ㄈㄢˋ']], wordZh: [['飯','ㄈㄢˋ']] },
         { en: 'egg', emoji: '🥚', zh: [['我','ㄨㄛˇ'],['喜','ㄒㄧˇ'],['歡','ㄏㄨㄢ'],['吃','ㄔ'],['蛋','ㄉㄢˋ']], wordZh: [['蛋','ㄉㄢˋ']] },
         { en: 'bread', emoji: '🍞', zh: [['我','ㄨㄛˇ'],['喜','ㄒㄧˇ'],['歡','ㄏㄨㄢ'],['吃','ㄔ'],['麵','ㄇㄧㄢˋ'],['包','ㄅㄠ']], wordZh: [['麵','ㄇㄧㄢˋ'],['包','ㄅㄠ']] }
+      ]
+    },
+    {
+      id: 'day4',
+      date: '2026-09-13',
+      title: '學校用品 School Items',
+      emoji: '✏️',
+      pattern: 'I have a ___.',
+      words: [
+        { en: 'pencil', emoji: '✏️', zh: [['我','ㄨㄛˇ'],['有','ㄧㄡˇ'],['一','ㄧ'],['枝','ㄓ'],['鉛','ㄑㄧㄢ'],['筆','ㄅㄧˇ']], wordZh: [['鉛','ㄑㄧㄢ'],['筆','ㄅㄧˇ']] },
+        { en: 'book', emoji: '📖', zh: [['我','ㄨㄛˇ'],['有','ㄧㄡˇ'],['一','ㄧ'],['本','ㄅㄣˇ'],['書','ㄕㄨ']], wordZh: [['書','ㄕㄨ']] },
+        { en: 'bag', emoji: '🎒', zh: [['我','ㄨㄛˇ'],['有','ㄧㄡˇ'],['一','ㄧ'],['個','˙ㄍㄜ'],['書','ㄕㄨ'],['包','ㄅㄠ']], wordZh: [['書','ㄕㄨ'],['包','ㄅㄠ']] },
+        { en: 'ruler', emoji: '📏', zh: [['我','ㄨㄛˇ'],['有','ㄧㄡˇ'],['一','ㄧ'],['把','ㄅㄚˇ'],['尺','ㄔˇ']], wordZh: [['尺','ㄔˇ']] },
+        { en: 'crayon', emoji: '🖍️', zh: [['我','ㄨㄛˇ'],['有','ㄧㄡˇ'],['一','ㄧ'],['枝','ㄓ'],['蠟','ㄌㄚˋ'],['筆','ㄅㄧˇ']], wordZh: [['蠟','ㄌㄚˋ'],['筆','ㄅㄧˇ']] }
+      ]
+    },
+    {
+      id: 'day5',
+      date: '2026-09-14',
+      title: '交通工具 Transportation',
+      emoji: '🚗',
+      pattern: 'I see a ___.',
+      words: [
+        { en: 'car', emoji: '🚗', zh: [['我','ㄨㄛˇ'],['看','ㄎㄢˋ'],['到','ㄉㄠˋ'],['一','ㄧ'],['輛','ㄌㄧㄤˋ'],['車','ㄔㄜ']], wordZh: [['車','ㄔㄜ']] },
+        { en: 'bus', emoji: '🚌', zh: [['我','ㄨㄛˇ'],['看','ㄎㄢˋ'],['到','ㄉㄠˋ'],['一','ㄧ'],['輛','ㄌㄧㄤˋ'],['公','ㄍㄨㄥ'],['車','ㄔㄜ']], wordZh: [['公','ㄍㄨㄥ'],['車','ㄔㄜ']] },
+        { en: 'train', emoji: '🚂', zh: [['我','ㄨㄛˇ'],['看','ㄎㄢˋ'],['到','ㄉㄠˋ'],['一','ㄧ'],['台','ㄊㄞˊ'],['火','ㄏㄨㄛˇ'],['車','ㄔㄜ']], wordZh: [['火','ㄏㄨㄛˇ'],['車','ㄔㄜ']] },
+        { en: 'boat', emoji: '⛵', zh: [['我','ㄨㄛˇ'],['看','ㄎㄢˋ'],['到','ㄉㄠˋ'],['一','ㄧ'],['艘','ㄙㄡ'],['船','ㄔㄨㄢˊ']], wordZh: [['船','ㄔㄨㄢˊ']] },
+        { en: 'airplane', emoji: '✈️', zh: [['我','ㄨㄛˇ'],['看','ㄎㄢˋ'],['到','ㄉㄠˋ'],['一','ㄧ'],['架','ㄐㄧㄚˋ'],['飛','ㄈㄟ'],['機','ㄐㄧ']], wordZh: [['飛','ㄈㄟ'],['機','ㄐㄧ']] }
+      ]
+    },
+    {
+      id: 'day6',
+      date: '2026-09-15',
+      title: '身體部位 Body Parts',
+      emoji: '✋',
+      pattern: 'This is my ___.',
+      words: [
+        { en: 'hand', emoji: '✋', zh: [['這','ㄓㄜˋ'],['是','ㄕˋ'],['我','ㄨㄛˇ'],['的','˙ㄉㄜ'],['手','ㄕㄡˇ']], wordZh: [['手','ㄕㄡˇ']] },
+        { en: 'eye', emoji: '👁️', zh: [['這','ㄓㄜˋ'],['是','ㄕˋ'],['我','ㄨㄛˇ'],['的','˙ㄉㄜ'],['眼','ㄧㄢˇ'],['睛','˙ㄐㄧㄥ']], wordZh: [['眼','ㄧㄢˇ'],['睛','˙ㄐㄧㄥ']] },
+        { en: 'ear', emoji: '👂', zh: [['這','ㄓㄜˋ'],['是','ㄕˋ'],['我','ㄨㄛˇ'],['的','˙ㄉㄜ'],['耳','ㄦˇ'],['朵','˙ㄉㄨㄛ']], wordZh: [['耳','ㄦˇ'],['朵','˙ㄉㄨㄛ']] },
+        { en: 'nose', emoji: '👃', zh: [['這','ㄓㄜˋ'],['是','ㄕˋ'],['我','ㄨㄛˇ'],['的','˙ㄉㄜ'],['鼻','ㄅㄧˊ'],['子','˙ㄗ']], wordZh: [['鼻','ㄅㄧˊ'],['子','˙ㄗ']] },
+        { en: 'foot', emoji: '🦶', zh: [['這','ㄓㄜˋ'],['是','ㄕˋ'],['我','ㄨㄛˇ'],['的','˙ㄉㄜ'],['腳','ㄐㄧㄠˇ']], wordZh: [['腳','ㄐㄧㄠˇ']] }
+      ]
+    },
+    {
+      id: 'day7',
+      date: '2026-09-16',
+      title: '天氣 Weather',
+      emoji: '☀️',
+      pattern: 'It is ___.',
+      words: [
+        { en: 'sunny', emoji: '☀️', zh: [['今','ㄐㄧㄣ'],['天','ㄊㄧㄢ'],['是','ㄕˋ'],['晴','ㄑㄧㄥˊ'],['天','ㄊㄧㄢ']], wordZh: [['晴','ㄑㄧㄥˊ'],['天','ㄊㄧㄢ']] },
+        { en: 'rainy', emoji: '🌧️', zh: [['今','ㄐㄧㄣ'],['天','ㄊㄧㄢ'],['是','ㄕˋ'],['雨','ㄩˇ'],['天','ㄊㄧㄢ']], wordZh: [['雨','ㄩˇ'],['天','ㄊㄧㄢ']] },
+        { en: 'cloudy', emoji: '☁️', zh: [['今','ㄐㄧㄣ'],['天','ㄊㄧㄢ'],['是','ㄕˋ'],['陰','ㄧㄣ'],['天','ㄊㄧㄢ']], wordZh: [['陰','ㄧㄣ'],['天','ㄊㄧㄢ']] },
+        { en: 'windy', emoji: '💨', zh: [['今','ㄐㄧㄣ'],['天','ㄊㄧㄢ'],['颳','ㄍㄨㄚ'],['風','ㄈㄥ']], wordZh: [['颳','ㄍㄨㄚ'],['風','ㄈㄥ']] },
+        { en: 'snowy', emoji: '❄️', zh: [['今','ㄐㄧㄣ'],['天','ㄊㄧㄢ'],['下','ㄒㄧㄚˋ'],['雪','ㄒㄩㄝˇ']], wordZh: [['下','ㄒㄧㄚˋ'],['雪','ㄒㄩㄝˇ']] }
+      ]
+    },
+    {
+      id: 'day8',
+      date: '2026-09-17',
+      title: '玩具 Toys',
+      emoji: '🧸',
+      pattern: 'I like ___.',
+      words: [
+        { en: 'ball', emoji: '⚽', zh: [['我','ㄨㄛˇ'],['喜','ㄒㄧˇ'],['歡','ㄏㄨㄢ'],['球','ㄑㄧㄡˊ']], wordZh: [['球','ㄑㄧㄡˊ']] },
+        { en: 'doll', emoji: '🧸', zh: [['我','ㄨㄛˇ'],['喜','ㄒㄧˇ'],['歡','ㄏㄨㄢ'],['玩','ㄨㄢˊ'],['偶','ㄡˇ']], wordZh: [['玩','ㄨㄢˊ'],['偶','ㄡˇ']] },
+        { en: 'kite', emoji: '🪁', zh: [['我','ㄨㄛˇ'],['喜','ㄒㄧˇ'],['歡','ㄏㄨㄢ'],['風','ㄈㄥ'],['箏','˙ㄓㄥ']], wordZh: [['風','ㄈㄥ'],['箏','˙ㄓㄥ']] },
+        { en: 'balloon', emoji: '🎈', zh: [['我','ㄨㄛˇ'],['喜','ㄒㄧˇ'],['歡','ㄏㄨㄢ'],['氣','ㄑㄧˋ'],['球','ㄑㄧㄡˊ']], wordZh: [['氣','ㄑㄧˋ'],['球','ㄑㄧㄡˊ']] },
+        { en: 'robot', emoji: '🤖', zh: [['我','ㄨㄛˇ'],['喜','ㄒㄧˇ'],['歡','ㄏㄨㄢ'],['機','ㄐㄧ'],['器','ㄑㄧˋ'],['人','ㄖㄣˊ']], wordZh: [['機','ㄐㄧ'],['器','ㄑㄧˋ'],['人','ㄖㄣˊ']] }
+      ]
+    },
+    {
+      id: 'day9',
+      date: '2026-09-18',
+      title: '顏色 Colors',
+      emoji: '🎨',
+      pattern: 'I like ___.',
+      words: [
+        { en: 'red', emoji: '🟥', zh: [['我','ㄨㄛˇ'],['喜','ㄒㄧˇ'],['歡','ㄏㄨㄢ'],['紅','ㄏㄨㄥˊ'],['色','ㄙㄜˋ']], wordZh: [['紅','ㄏㄨㄥˊ'],['色','ㄙㄜˋ']] },
+        { en: 'blue', emoji: '🟦', zh: [['我','ㄨㄛˇ'],['喜','ㄒㄧˇ'],['歡','ㄏㄨㄢ'],['藍','ㄌㄢˊ'],['色','ㄙㄜˋ']], wordZh: [['藍','ㄌㄢˊ'],['色','ㄙㄜˋ']] },
+        { en: 'yellow', emoji: '🟨', zh: [['我','ㄨㄛˇ'],['喜','ㄒㄧˇ'],['歡','ㄏㄨㄢ'],['黃','ㄏㄨㄤˊ'],['色','ㄙㄜˋ']], wordZh: [['黃','ㄏㄨㄤˊ'],['色','ㄙㄜˋ']] },
+        { en: 'green', emoji: '🟩', zh: [['我','ㄨㄛˇ'],['喜','ㄒㄧˇ'],['歡','ㄏㄨㄢ'],['綠','ㄌㄩˋ'],['色','ㄙㄜˋ']], wordZh: [['綠','ㄌㄩˋ'],['色','ㄙㄜˋ']] },
+        { en: 'black', emoji: '⬛', zh: [['我','ㄨㄛˇ'],['喜','ㄒㄧˇ'],['歡','ㄏㄨㄢ'],['黑','ㄏㄟ'],['色','ㄙㄜˋ']], wordZh: [['黑','ㄏㄟ'],['色','ㄙㄜˋ']] }
+      ]
+    },
+    {
+      id: 'day10',
+      date: '2026-09-19',
+      title: '水果 Fruits',
+      emoji: '🍓',
+      pattern: 'I like ___.',
+      words: [
+        { en: 'banana', emoji: '🍌', zh: [['我','ㄨㄛˇ'],['喜','ㄒㄧˇ'],['歡','ㄏㄨㄢ'],['吃','ㄔ'],['香','ㄒㄧㄤ'],['蕉','ㄐㄧㄠ']], wordZh: [['香','ㄒㄧㄤ'],['蕉','ㄐㄧㄠ']] },
+        { en: 'orange', emoji: '🍊', zh: [['我','ㄨㄛˇ'],['喜','ㄒㄧˇ'],['歡','ㄏㄨㄢ'],['吃','ㄔ'],['橘','ㄐㄩˊ'],['子','˙ㄗ']], wordZh: [['橘','ㄐㄩˊ'],['子','˙ㄗ']] },
+        { en: 'grape', emoji: '🍇', zh: [['我','ㄨㄛˇ'],['喜','ㄒㄧˇ'],['歡','ㄏㄨㄢ'],['吃','ㄔ'],['葡','ㄆㄨˊ'],['萄','ㄊㄠˊ']], wordZh: [['葡','ㄆㄨˊ'],['萄','ㄊㄠˊ']] },
+        { en: 'strawberry', emoji: '🍓', zh: [['我','ㄨㄛˇ'],['喜','ㄒㄧˇ'],['歡','ㄏㄨㄢ'],['吃','ㄔ'],['草','ㄘㄠˇ'],['莓','ㄇㄟˊ']], wordZh: [['草','ㄘㄠˇ'],['莓','ㄇㄟˊ']] },
+        { en: 'watermelon', emoji: '🍉', zh: [['我','ㄨㄛˇ'],['喜','ㄒㄧˇ'],['歡','ㄏㄨㄢ'],['吃','ㄔ'],['西','ㄒㄧ'],['瓜','ㄍㄨㄚ']], wordZh: [['西','ㄒㄧ'],['瓜','ㄍㄨㄚ']] }
+      ]
+    },
+    {
+      id: 'day11',
+      date: '2026-09-20',
+      title: '數字 Numbers',
+      emoji: '🔢',
+      pattern: 'It is number ___.',
+      words: [
+        { en: 'one', emoji: '1️⃣', zh: [['這','ㄓㄜˋ'],['是','ㄕˋ'],['數','ㄕㄨˋ'],['字','ㄗˋ'],['一','ㄧ']], wordZh: [['一','ㄧ']] },
+        { en: 'two', emoji: '2️⃣', zh: [['這','ㄓㄜˋ'],['是','ㄕˋ'],['數','ㄕㄨˋ'],['字','ㄗˋ'],['二','ㄦˋ']], wordZh: [['二','ㄦˋ']] },
+        { en: 'three', emoji: '3️⃣', zh: [['這','ㄓㄜˋ'],['是','ㄕˋ'],['數','ㄕㄨˋ'],['字','ㄗˋ'],['三','ㄙㄢ']], wordZh: [['三','ㄙㄢ']] },
+        { en: 'four', emoji: '4️⃣', zh: [['這','ㄓㄜˋ'],['是','ㄕˋ'],['數','ㄕㄨˋ'],['字','ㄗˋ'],['四','ㄙˋ']], wordZh: [['四','ㄙˋ']] },
+        { en: 'five', emoji: '5️⃣', zh: [['這','ㄓㄜˋ'],['是','ㄕˋ'],['數','ㄕㄨˋ'],['字','ㄗˋ'],['五','ㄨˇ']], wordZh: [['五','ㄨˇ']] }
       ]
     }
   ];
@@ -1009,6 +1122,188 @@
         { q: "What will they do near the big tiger?", options: ["Feed it", "Take photos", "Draw a picture"], answer: 1 }
       ],
       short: []
+    },
+    {
+      id: 'sday5',
+      date: '2026-09-14',
+      title: 'The Lost Puppy',
+      emoji: '🐶',
+      storyEn: "On Monday, Amy finds a small puppy near the school gate. The puppy looks hungry and scared. Amy gives it some food and water. She asks her classmates if they know the owner. Finally, they find the owner, an old man who lives nearby. He thanks Amy for her kindness.",
+      previewWords: [
+        { en: 'find', pos: 'v.', zh: '找到、發現', def: 'to see or discover something' },
+        { en: 'hungry', pos: 'adj.', zh: '飢餓的', def: 'feeling like you need to eat' },
+        { en: 'scared', pos: 'adj.', zh: '害怕的', def: 'feeling afraid' },
+        { en: 'classmate', pos: 'n.', zh: '同學', def: 'a student in the same class as you' },
+        { en: 'owner', pos: 'n.', zh: '主人', def: 'a person who has something' },
+        { en: 'finally', pos: 'adv.', zh: '最後、終於', def: 'after a long time' },
+        { en: 'nearby', pos: 'adv.', zh: '在附近', def: 'not far away' },
+        { en: 'thank', pos: 'v.', zh: '感謝', def: 'to tell someone you are grateful' },
+        { en: 'kindness', pos: 'n.', zh: '善良、好心', def: 'being kind and helpful to others' }
+      ],
+      mc: [
+        { q: "What does Amy find near the school gate?", options: ["A puppy", "A cat", "A bird"], answer: 0 },
+        { q: "How does the puppy look?", options: ["Happy", "Hungry and scared", "Sleepy"], answer: 1 },
+        { q: "What does Amy give the puppy?", options: ["A toy", "Food and water", "A blanket"], answer: 1 },
+        { q: "Who is the owner?", options: ["A teacher", "An old man", "A classmate"], answer: 1 },
+        { q: "What does the owner do at the end?", options: ["Thanks Amy", "Scolds Amy", "Ignores Amy"], answer: 0 }
+      ],
+      short: []
+    },
+    {
+      id: 'sday6',
+      date: '2026-09-15',
+      title: "Grandma's Garden",
+      emoji: '🌻',
+      storyEn: "Every Sunday, Leo visits his grandma's garden. She grows tomatoes, carrots, and sunflowers there. Leo helps her water the plants and pull out the weeds. Grandma teaches him how to plant new seeds. After working, they sit under a big tree and eat fresh fruit. Leo loves these quiet afternoons with her.",
+      previewWords: [
+        { en: 'visit', pos: 'v.', zh: '拜訪', def: 'to go and see someone' },
+        { en: 'grow', pos: 'v.', zh: '種植、生長', def: 'to plant something and let it get bigger' },
+        { en: 'plant', pos: 'v./n.', zh: '種植、植物', def: 'to put a seed in the ground; a living thing that grows in soil' },
+        { en: 'weed', pos: 'n.', zh: '雜草', def: 'a wild plant growing where it is not wanted' },
+        { en: 'seed', pos: 'n.', zh: '種子', def: 'a small thing a plant grows from' },
+        { en: 'fresh', pos: 'adj.', zh: '新鮮的', def: 'newly made or picked, not old' },
+        { en: 'quiet', pos: 'adj.', zh: '安靜的', def: 'making little or no noise' },
+        { en: 'afternoon', pos: 'n.', zh: '下午', def: 'the part of the day between noon and evening' },
+        { en: 'garden', pos: 'n.', zh: '花園', def: 'a piece of land where plants are grown' }
+      ],
+      mc: [
+        { q: "When does Leo visit his grandma?", options: ["Every Monday", "Every Sunday", "Every Saturday"], answer: 1 },
+        { q: "What does grandma grow?", options: ["Tomatoes, carrots, and sunflowers", "Apples and pears", "Rice and corn"], answer: 0 },
+        { q: "What does Leo help with?", options: ["Cooking", "Watering plants and pulling weeds", "Cleaning the house"], answer: 1 },
+        { q: "What does grandma teach Leo?", options: ["How to plant new seeds", "How to cook", "How to draw"], answer: 0 },
+        { q: "Where do they sit after working?", options: ["In the kitchen", "Under a big tree", "In the car"], answer: 1 }
+      ],
+      short: []
+    },
+    {
+      id: 'sday7',
+      date: '2026-09-16',
+      title: 'The Science Fair',
+      emoji: '🌋',
+      storyEn: "Next month, Daniel's school will hold a science fair. He decides to build a small volcano model with his partner, Sam. They mix baking soda and vinegar to make it erupt. At first, the model does not work well, so they try again carefully. On the day of the fair, their volcano finally erupts, and everyone claps.",
+      previewWords: [
+        { en: 'decide', pos: 'v.', zh: '決定', def: 'to choose something after thinking about it' },
+        { en: 'build', pos: 'v.', zh: '建造、製作', def: 'to make something by putting parts together' },
+        { en: 'partner', pos: 'n.', zh: '夥伴', def: 'a person you work with' },
+        { en: 'mix', pos: 'v.', zh: '混合', def: 'to put different things together' },
+        { en: 'erupt', pos: 'v.', zh: '噴發', def: 'to burst out suddenly' },
+        { en: 'at first', pos: '片語', zh: '一開始', def: 'at the beginning' },
+        { en: 'carefully', pos: 'adv.', zh: '小心地', def: 'in a way that pays close attention' },
+        { en: 'finally', pos: 'adv.', zh: '最後、終於', def: 'after a long time' },
+        { en: 'clap', pos: 'v.', zh: '鼓掌', def: 'to hit your hands together to show you like something' }
+      ],
+      mc: [
+        { q: "What will Daniel's school hold?", options: ["A sports day", "A science fair", "A music concert"], answer: 1 },
+        { q: "What does Daniel build?", options: ["A robot", "A volcano model", "A bridge"], answer: 1 },
+        { q: "What do they mix to make it erupt?", options: ["Water and sugar", "Baking soda and vinegar", "Salt and oil"], answer: 1 },
+        { q: "What happens at first?", options: ["The model works perfectly", "The model does not work well", "The model breaks"], answer: 1 },
+        { q: "What do people do when the volcano erupts?", options: ["They clap", "They leave", "They cry"], answer: 0 }
+      ],
+      short: []
+    },
+    {
+      id: 'sday8',
+      date: '2026-09-17',
+      title: 'A New Neighbor',
+      emoji: '🏸',
+      storyEn: "Last week, a new family moved into the house next door. Their daughter, Emma, is the same age as Chloe. At first, Chloe feels shy and does not know what to say. One afternoon, Emma invites Chloe to play badminton in the yard. They laugh a lot and quickly become good friends. Now they walk to school together every day.",
+      previewWords: [
+        { en: 'move', pos: 'v.', zh: '搬家', def: 'to go and live in a new place' },
+        { en: 'neighbor', pos: 'n.', zh: '鄰居', def: 'someone who lives near you' },
+        { en: 'shy', pos: 'adj.', zh: '害羞的', def: 'nervous about talking to other people' },
+        { en: 'invite', pos: 'v.', zh: '邀請', def: 'to ask someone to come and do something' },
+        { en: 'yard', pos: 'n.', zh: '院子', def: 'an outdoor area next to a house' },
+        { en: 'laugh', pos: 'v.', zh: '笑', def: 'to make a sound when something is funny' },
+        { en: 'quickly', pos: 'adv.', zh: '很快地', def: 'in a short amount of time' },
+        { en: 'friend', pos: 'n.', zh: '朋友', def: 'a person you like and enjoy being with' },
+        { en: 'together', pos: 'adv.', zh: '一起', def: 'with another person, not alone' }
+      ],
+      mc: [
+        { q: "What happened last week?", options: ["A new family moved in", "Chloe moved away", "School started"], answer: 0 },
+        { q: "How does Chloe feel at first?", options: ["Excited", "Shy", "Angry"], answer: 1 },
+        { q: "What does Emma invite Chloe to do?", options: ["Play badminton", "Watch a movie", "Do homework"], answer: 0 },
+        { q: "How do Chloe and Emma become friends?", options: ["They fight and make up", "They laugh a lot together", "Their parents introduce them"], answer: 1 },
+        { q: "What do they do every day now?", options: ["Play video games", "Walk to school together", "Do homework together"], answer: 1 }
+      ],
+      short: []
+    },
+    {
+      id: 'sday9',
+      date: '2026-09-18',
+      title: 'The Camping Trip',
+      emoji: '⛺',
+      storyEn: "During summer vacation, Jack's family goes camping by the lake. They set up a big tent and start a small campfire. At night, Jack's dad tells funny stories while they roast marshmallows. Jack hears owls hooting in the dark forest and feels a little nervous. In the morning, everyone wakes up early to watch the sunrise together.",
+      previewWords: [
+        { en: 'vacation', pos: 'n.', zh: '假期', def: 'time away from school or work' },
+        { en: 'tent', pos: 'n.', zh: '帳篷', def: 'a shelter made of cloth for camping' },
+        { en: 'campfire', pos: 'n.', zh: '營火', def: 'a fire made outdoors while camping' },
+        { en: 'roast', pos: 'v.', zh: '烤', def: 'to cook something over a fire' },
+        { en: 'marshmallow', pos: 'n.', zh: '棉花糖', def: 'a soft, sweet white candy' },
+        { en: 'hoot', pos: 'v.', zh: '(貓頭鷹)鳴叫', def: 'the sound an owl makes' },
+        { en: 'nervous', pos: 'adj.', zh: '緊張的', def: 'feeling worried or a little afraid' },
+        { en: 'sunrise', pos: 'n.', zh: '日出', def: 'when the sun comes up in the morning' },
+        { en: 'forest', pos: 'n.', zh: '森林', def: 'a large area covered with trees' }
+      ],
+      mc: [
+        { q: "Where does Jack's family go camping?", options: ["By the lake", "In the mountains", "At the beach"], answer: 0 },
+        { q: "What do they do at night?", options: ["Watch TV", "Tell stories and roast marshmallows", "Go swimming"], answer: 1 },
+        { q: "What does Jack hear in the forest?", options: ["Owls hooting", "Dogs barking", "Music playing"], answer: 0 },
+        { q: "How does Jack feel when he hears the owls?", options: ["Excited", "A little nervous", "Bored"], answer: 1 },
+        { q: "What does everyone do in the morning?", options: ["Sleep in", "Wake up early to watch the sunrise", "Go home"], answer: 1 }
+      ],
+      short: []
+    },
+    {
+      id: 'sday10',
+      date: '2026-09-19',
+      title: 'The Talent Show',
+      emoji: '🎤',
+      storyEn: "Every year, Riverside Elementary holds a talent show for all students. This year, Sophie wants to sing a song on stage, but she feels very nervous. Her best friend, Grace, practices with her every day after school. On the night of the show, Sophie takes a deep breath and sings bravely. The audience claps loudly, and Sophie feels very proud.",
+      previewWords: [
+        { en: 'talent show', pos: '片語', zh: '才藝表演', def: 'an event where people show a special skill' },
+        { en: 'nervous', pos: 'adj.', zh: '緊張的', def: 'feeling worried or a little afraid' },
+        { en: 'practice', pos: 'v.', zh: '練習', def: 'to do something again and again to get better' },
+        { en: 'stage', pos: 'n.', zh: '舞台', def: 'a raised platform where people perform' },
+        { en: 'deep breath', pos: '片語', zh: '深呼吸', def: 'a big breath of air' },
+        { en: 'bravely', pos: 'adv.', zh: '勇敢地', def: 'in a brave way, without giving up to fear' },
+        { en: 'audience', pos: 'n.', zh: '觀眾', def: 'the people watching a show' },
+        { en: 'loudly', pos: 'adv.', zh: '大聲地', def: 'in a loud way' },
+        { en: 'proud', pos: 'adj.', zh: '驕傲的', def: 'feeling good about something you did' }
+      ],
+      mc: [
+        { q: "What does the school hold every year?", options: ["A talent show", "A sports day", "A field trip"], answer: 0 },
+        { q: "What does Sophie want to do?", options: ["Dance", "Sing a song", "Tell jokes"], answer: 1 },
+        { q: "Who practices with Sophie?", options: ["Her teacher", "Her mom", "Her best friend, Grace"], answer: 2 },
+        { q: "What does Sophie do before singing?", options: ["Takes a deep breath", "Runs away", "Cries"], answer: 0 },
+        { q: "How does Sophie feel after the show?", options: ["Embarrassed", "Very proud", "Angry"], answer: 1 }
+      ],
+      short: []
+    },
+    {
+      id: 'sday11',
+      date: '2026-09-20',
+      title: 'The Time Capsule',
+      emoji: '⏳',
+      storyEn: "On the last day of school, Mr. Lee's class buries a time capsule under the old oak tree. Each student puts something special inside, like photos, letters, and small toys. They plan to open it again in ten years. Ben writes a letter to his future self, promising to stay curious and kind. Everyone feels excited about the future.",
+      previewWords: [
+        { en: 'bury', pos: 'v.', zh: '埋', def: 'to put something under the ground' },
+        { en: 'capsule', pos: 'n.', zh: '膠囊（此指時光膠囊）', def: 'a small closed container' },
+        { en: 'special', pos: 'adj.', zh: '特別的', def: 'not ordinary; important in some way' },
+        { en: 'plan', pos: 'v.', zh: '計畫', def: 'to think about what you will do' },
+        { en: 'future', pos: 'n./adj.', zh: '未來', def: 'the time that has not happened yet' },
+        { en: 'promise', pos: 'v.', zh: '承諾', def: 'to say you will definitely do something' },
+        { en: 'curious', pos: 'adj.', zh: '好奇的', def: 'wanting to learn or know about something' },
+        { en: 'excited', pos: 'adj.', zh: '興奮的', def: 'feeling very happy about something' },
+        { en: 'letter', pos: 'n.', zh: '信', def: 'a written message sent to someone' }
+      ],
+      mc: [
+        { q: "What does the class bury?", options: ["A treasure box", "A time capsule", "A photo album"], answer: 1 },
+        { q: "Where do they bury it?", options: ["Under the old oak tree", "In the classroom", "In the garden"], answer: 0 },
+        { q: "When do they plan to open it?", options: ["Next year", "In ten years", "Tomorrow"], answer: 1 },
+        { q: "What does Ben write?", options: ["A story", "A letter to his future self", "A song"], answer: 1 },
+        { q: "How does everyone feel about the future?", options: ["Scared", "Excited", "Bored"], answer: 1 }
+      ],
+      short: []
     }
   ];
 
@@ -1110,6 +1405,17 @@
 
   const TEST_MODE = new URLSearchParams(location.search).get('test') === '1';
 
+  function updateTestBar() {
+    if (!TEST_MODE) return;
+    const scott = activeProfile === 'scott';
+    $('test-hardy-jumps').hidden = scott;
+    $('test-scott-jumps').hidden = !scott;
+    const day = session.dayId ? dayById(session.dayId) : null;
+    $('test-current-day').textContent = day
+      ? '目前：[' + (scott ? 'Scott' : 'Hardy') + '] ' + day.title
+      : '請先點行事曆上的日期';
+  }
+
   function ensureDayState(dayId) {
     if (!state.days[dayId]) {
       state.days[dayId] = {
@@ -1192,6 +1498,7 @@
       show('screen-words');
       renderWordCard();
     }
+    updateTestBar();
   }
 
   /* ===================== WORD CARDS ===================== */
@@ -1831,18 +2138,22 @@
   /* ===================== NAVIGATION ===================== */
   $('btn-grade1').addEventListener('click', function () {
     activeProfile = 'hardy';
+    session.dayId = null;
     $('screen-mode').hidden = true;
     $('profile-flow').hidden = false;
     renderHome();
     show('screen-home');
+    updateTestBar();
   });
 
   $('btn-grade6').addEventListener('click', function () {
     activeProfile = 'scott';
+    session.dayId = null;
     $('screen-mode').hidden = true;
     $('profile-flow').hidden = false;
     renderHome();
     show('screen-home');
+    updateTestBar();
   });
 
   $('g1-back').addEventListener('click', function () {
@@ -1850,39 +2161,19 @@
     $('screen-mode').hidden = false;
   });
 
-  /* ===================== TEST/DEV SHORTCUT BAR (?test=1) ===================== */
+  /* ===================== TEST/DEV SHORTCUT BAR (?test=1) =====================
+     No day picker here — click any date on the calendar (all dates are
+     unlocked while TEST_MODE is on) to make it the "current" day, then use
+     these buttons to jump straight to any screen for that same day. */
   if (TEST_MODE) {
     $('test-bar').hidden = false;
-    const daySelect = $('test-day');
-    GRADE1_DAYS.forEach(function (d) {
-      const opt = document.createElement('option');
-      opt.value = d.id;
-      opt.textContent = '[Hardy] ' + d.title;
-      daySelect.appendChild(opt);
-    });
-    SCOTT_DAYS.forEach(function (d) {
-      const opt = document.createElement('option');
-      opt.value = d.id;
-      opt.textContent = '[Scott] ' + d.title;
-      daySelect.appendChild(opt);
-    });
-
-    function isScottId(id) { return id.charAt(0) === 's'; }
-
-    function syncTestJumpGroups() {
-      const scott = isScottId(daySelect.value);
-      $('test-hardy-jumps').hidden = scott;
-      $('test-scott-jumps').hidden = !scott;
-    }
-    daySelect.addEventListener('change', syncTestJumpGroups);
-    syncTestJumpGroups();
+    updateTestBar();
 
     $('test-bar').addEventListener('click', function (e) {
       const btn = e.target.closest('button[data-jump]');
       if (!btn) return;
-      const dayId = daySelect.value || GRADE1_DAYS[0].id;
+      const dayId = session.dayId || (activeProfile === 'scott' ? SCOTT_DAYS[0].id : GRADE1_DAYS[0].id);
       session.dayId = dayId;
-      activeProfile = isScottId(dayId) ? 'scott' : 'hardy';
       $('screen-mode').hidden = true;
       $('profile-flow').hidden = false;
 
@@ -1897,6 +2188,7 @@
       else if (jump === 'story') { startStory(); }
       else if (jump === 'check') { startCheck(); }
       else if (jump === 'scott-complete') { ensureDayState(dayId); show('screen-complete'); }
+      updateTestBar();
     });
   }
 })();
