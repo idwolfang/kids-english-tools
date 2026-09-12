@@ -1382,6 +1382,7 @@
 
   let session = {
     dayId: null,
+    dayStartTime: null,
     wordIdx: 0,
     sentenceOrder: [],
     sentenceIdx: 0,
@@ -1488,10 +1489,18 @@
   const GOOGLE_FORM_ENTRIES = {
     child: 'entry.1500129491',
     dayLabel: 'entry.2062457373',
-    stage: 'entry.452910041'
+    stage: 'entry.452910041',
+    duration: 'entry.1418784165'
   };
 
-  function logProgress(child, dayLabel, stage) {
+  function formatDuration(ms) {
+    const totalSec = Math.max(0, Math.round(ms / 1000));
+    const m = Math.floor(totalSec / 60);
+    const s = totalSec % 60;
+    return m + '分' + (s < 10 ? '0' : '') + s + '秒';
+  }
+
+  function logProgress(child, dayLabel, stage, duration) {
     try {
       const form = document.createElement('form');
       form.action = 'https://docs.google.com/forms/d/e/' + GOOGLE_FORM_ID + '/formResponse';
@@ -1503,6 +1512,7 @@
       fields[GOOGLE_FORM_ENTRIES.child] = child;
       fields[GOOGLE_FORM_ENTRIES.dayLabel] = dayLabel;
       fields[GOOGLE_FORM_ENTRIES.stage] = stage;
+      fields[GOOGLE_FORM_ENTRIES.duration] = duration;
 
       Object.keys(fields).forEach(function (name) {
         const input = document.createElement('input');
@@ -1593,6 +1603,7 @@
 
   function startDay(dayId) {
     session.dayId = dayId;
+    session.dayStartTime = Date.now();
     if (activeProfile === 'scott') {
       startPreviewCards();
     } else {
@@ -2268,14 +2279,14 @@
   function finishDay() {
     const day = dayById(session.dayId);
     ensureDayState(day.id).spellDone = true;
-    if (!TEST_MODE) { logProgress('Hardy', day.title, '100%'); }
+    if (!TEST_MODE) { logProgress('Hardy', day.title, '100%', formatDuration(Date.now() - session.dayStartTime)); }
     showDayComplete('今天的單字、短句、配對都完成了，太棒了！');
   }
 
   function finishScottDay() {
     const day = dayById(session.dayId);
     ensureDayState(day.id).checkDone = true;
-    if (!TEST_MODE) { logProgress('Scott', day.title, '100%'); }
+    if (!TEST_MODE) { logProgress('Scott', day.title, '100%', formatDuration(Date.now() - session.dayStartTime)); }
     showDayComplete('今天的單字複習、故事、理解檢核都完成了，做得好！');
   }
 
