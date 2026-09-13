@@ -467,22 +467,16 @@
   }
 
   function renderSpellRound() {
+    const day = dayById(session.dayId);
     const entry = session.spellQueue[session.spellPos];
     const word = entry.word;
     session.spellAttempts = 0;
 
-    $('sp-prompt').textContent = entry.isRetry ? '🔁 加強練習：再輸入一次這個單字' : '請輸入英文單字';
+    $('sp-prompt').textContent = entry.isRetry ? '🔁 加強練習：再選一次這個單字' : '請選出正確的英文單字';
     $('sp-emoji').textContent = word.emoji;
     $('sp-zh').innerHTML = renderRuby(word.wordZh);
     $('sp-hint').textContent = '';
     $('sp-reveal').hidden = true;
-    $('sp-submit').hidden = false;
-
-    const input = $('sp-input');
-    input.value = '';
-    input.className = 'spell-input';
-    input.disabled = false;
-    input.focus();
 
     const dots = $('spell-dots');
     if (entry.isRetry) {
@@ -497,40 +491,48 @@
         dots.appendChild(dot);
       }
     }
+
+    const distractors = shuffle(day.words.filter(function (w) { return w.en !== word.en; })).slice(0, 2);
+    const options = shuffle([word].concat(distractors));
+
+    const grid = $('sp-options');
+    grid.innerHTML = '';
+    grid.hidden = false;
+    options.forEach(function (opt) {
+      const btn = document.createElement('button');
+      btn.className = 'option-btn';
+      btn.innerHTML = '<span>' + opt.en + '</span>';
+      btn.addEventListener('click', function () { handleSpellAnswer(opt, word, btn); });
+      grid.appendChild(btn);
+    });
   }
 
-  function handleSpellSubmit() {
-    const entry = session.spellQueue[session.spellPos];
-    const word = entry.word;
-    const input = $('sp-input');
-    const val = input.value.trim().toLowerCase();
-    if (!val) return;
+  function handleSpellAnswer(chosen, correct, btnEl) {
+    const isCorrect = chosen.en === correct.en;
+    const grid = $('sp-options');
 
-    if (val === word.en.toLowerCase()) {
-      input.disabled = true;
-      input.classList.add('correct');
-      $('sp-submit').hidden = true;
-      setTimeout(function () { revealSpell(word, true); }, 350);
+    if (isCorrect) {
+      Array.prototype.forEach.call(grid.children, function (b) { b.disabled = true; });
+      btnEl.classList.add('correct');
+      setTimeout(function () { revealSpell(correct, true); }, 500);
       return;
     }
 
     session.spellAttempts++;
-    input.classList.add('wrong');
-    setTimeout(function () { input.classList.remove('wrong'); }, 400);
+    btnEl.classList.add('wrong');
+    btnEl.disabled = true;
 
     if (session.spellAttempts === 1) {
-      $('sp-hint').textContent = '再試一次！提示：共 ' + word.en.length + ' 個字母，開頭是「' + word.en[0].toUpperCase() + '」';
-      input.value = '';
-      input.focus();
+      $('sp-hint').textContent = '再想想！提示：中文意思是「' + correct.wordZh.map(function (p) { return p[0]; }).join('') + '」';
     } else {
-      input.disabled = true;
-      $('sp-submit').hidden = true;
-      revealSpell(word, false);
+      Array.prototype.forEach.call(grid.children, function (b) { b.disabled = true; });
+      setTimeout(function () { revealSpell(correct, false); }, 300);
     }
   }
 
   function revealSpell(word, wasCorrect) {
     $('sp-hint').textContent = '';
+    $('sp-options').hidden = true;
     $('sp-reveal').hidden = false;
     $('sp-reveal-en').textContent = word.en;
     $('sp-reveal-speak').onclick = function () { speak(word.en); };
@@ -540,10 +542,6 @@
     }
   }
 
-  $('sp-submit').addEventListener('click', handleSpellSubmit);
-  $('sp-input').addEventListener('keydown', function (e) {
-    if (e.key === 'Enter' && !$('sp-input').disabled) { handleSpellSubmit(); }
-  });
   $('sp-continue').addEventListener('click', function () {
     session.spellPos++;
     if (session.spellPos < session.spellQueue.length) {
