@@ -449,7 +449,7 @@
   .option-btn {
     font-family: 'Noto Sans TC', sans-serif;
     font-weight: 700;
-    font-size: 14px;
+    font-size: 18px;
     background: var(--panel);
     border: 3px solid var(--panel-edge-dark);
     box-shadow: 0 4px 0 var(--panel-edge-dark);
@@ -528,7 +528,7 @@
   }
   .pv-zh { font-size: 20px; margin: 8px 0 10px; }
   .pv-def {
-    font-size: 13px;
+    font-size: 18px;
     color: var(--ink-soft);
     line-height: 1.5;
     padding: 0 6px;
@@ -579,7 +579,7 @@
   .match-item.text {
     font-family: 'Noto Sans TC', sans-serif;
     font-weight: 700;
-    font-size: 15px;
+    font-size: 18px;
   }
   .match-item:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--panel-edge-dark); }
   .match-item.selected { background: var(--accent2); border-color: var(--accent2-dark); }
