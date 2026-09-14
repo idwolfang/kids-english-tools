@@ -536,8 +536,8 @@
 
   /* ---------- Scott: story reading ---------- */
   .story-text {
-    font-size: 15px;
-    line-height: 1.9;
+    font-size: 18px;
+    line-height: 1.75;
     color: var(--ink);
     margin: 4px 0 18px;
   }
