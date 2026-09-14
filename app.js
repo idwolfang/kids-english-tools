@@ -29,6 +29,10 @@
     reviewTotalInitial: 0,
     reviewPos: 0,
     reviewAttempts: 0,
+    reviewFillQueue: [],
+    reviewFillTotalInitial: 0,
+    reviewFillPos: 0,
+    reviewFillAttempts: 0,
     previewIdx: 0,
     checkMcIdx: 0,
     checkShortIdx: 0,
@@ -641,6 +645,103 @@
     if (session.reviewPos < session.reviewQueue.length) {
       renderReviewRound();
     } else {
+      startReviewFill();
+    }
+  });
+
+  /* ===================== SCOTT: VOCAB REVIEW - FILL IN THE BLANK ===================== */
+  function startReviewFill() {
+    const day = dayById(session.dayId);
+    const picked = shuffle(day.previewWords).slice(0, Math.min(5, day.previewWords.length));
+    session.reviewFillQueue = picked.map(function (w) { return { word: w, isRetry: false }; });
+    session.reviewFillTotalInitial = session.reviewFillQueue.length;
+    session.reviewFillPos = 0;
+    show('screen-review-fill');
+    renderReviewFillRound();
+  }
+
+  function renderReviewFillRound() {
+    const entry = session.reviewFillQueue[session.reviewFillPos];
+    const word = entry.word;
+    session.reviewFillAttempts = 0;
+
+    $('rf-prompt').textContent = entry.isRetry ? '🔁 加強練習：再輸入一次這個單字' : '請輸入英文單字';
+    $('rf-zh').textContent = word.zh + '（' + word.pos + '）';
+    $('rf-hint').textContent = '';
+    $('rf-reveal').hidden = true;
+    $('rf-submit').hidden = false;
+
+    const input = $('rf-input');
+    input.value = '';
+    input.className = 'spell-input';
+    input.disabled = false;
+    input.focus();
+
+    const dots = $('rf-dots');
+    if (entry.isRetry) {
+      dots.hidden = true;
+    } else {
+      dots.hidden = false;
+      dots.innerHTML = '';
+      for (let i = 0; i < session.reviewFillTotalInitial; i++) {
+        const dot = document.createElement('span');
+        if (i < session.reviewFillPos) dot.className = 'done';
+        else if (i === session.reviewFillPos) dot.className = 'current';
+        dots.appendChild(dot);
+      }
+    }
+  }
+
+  function handleReviewFillSubmit() {
+    const entry = session.reviewFillQueue[session.reviewFillPos];
+    const word = entry.word;
+    const input = $('rf-input');
+    const val = input.value.trim().toLowerCase();
+    if (!val) return;
+
+    if (val === word.en.toLowerCase()) {
+      input.disabled = true;
+      input.classList.add('correct');
+      $('rf-submit').hidden = true;
+      setTimeout(function () { revealReviewFill(word, true); }, 350);
+      return;
+    }
+
+    session.reviewFillAttempts++;
+    input.classList.add('wrong');
+    setTimeout(function () { input.classList.remove('wrong'); }, 400);
+
+    if (session.reviewFillAttempts === 1) {
+      $('rf-hint').textContent = '再試一次！提示：共 ' + word.en.length + ' 個字母，開頭是「' + word.en[0].toUpperCase() + '」';
+      input.value = '';
+      input.focus();
+    } else {
+      input.disabled = true;
+      $('rf-submit').hidden = true;
+      revealReviewFill(word, false);
+    }
+  }
+
+  function revealReviewFill(word, wasCorrect) {
+    $('rf-hint').textContent = '';
+    $('rf-reveal').hidden = false;
+    $('rf-reveal-en').textContent = word.en;
+    $('rf-reveal-speak').onclick = function () { speak(word.en); };
+    speak(word.en);
+    if (!wasCorrect) {
+      session.reviewFillQueue.push({ word: word, isRetry: true });
+    }
+  }
+
+  $('rf-submit').addEventListener('click', handleReviewFillSubmit);
+  $('rf-input').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && !$('rf-input').disabled) { handleReviewFillSubmit(); }
+  });
+  $('rf-continue').addEventListener('click', function () {
+    session.reviewFillPos++;
+    if (session.reviewFillPos < session.reviewFillQueue.length) {
+      renderReviewFillRound();
+    } else {
       ensureDayState(session.dayId).reviewDone = true;
       startStory();
     }
@@ -853,14 +954,45 @@
 
   function showDayComplete(message) {
     $('complete-msg').textContent = message;
+    updateCompletePlayButton();
     show('screen-complete');
   }
 
   /* ===================== REWARD GAME (5-minute hard cutoff) ===================== */
   const REWARD_GAME_URL = 'https://idwolfang.github.io/reward-games/';
   const REWARD_DURATION_SEC = 5 * 60;
+  const REWARD_MAX_PER_DAY = 3;
+  const REWARD_COUNT_KEY = 'kidsEnglishToolsRewardCount';
   let rewardTimerId = null;
   let rewardRemaining = 0;
+
+  function getRewardCountToday() {
+    if (TEST_MODE) return 0;
+    try {
+      const raw = localStorage.getItem(REWARD_COUNT_KEY);
+      if (!raw) return 0;
+      const data = JSON.parse(raw);
+      return data.date === todayIso ? data.count : 0;
+    } catch (e) { return 0; }
+  }
+
+  function incrementRewardCountToday() {
+    try {
+      localStorage.setItem(REWARD_COUNT_KEY, JSON.stringify({ date: todayIso, count: getRewardCountToday() + 1 }));
+    } catch (e) { /* localStorage unavailable, ignore */ }
+  }
+
+  function updateCompletePlayButton() {
+    const btn = $('complete-play');
+    const remaining = REWARD_MAX_PER_DAY - getRewardCountToday();
+    if (remaining <= 0) {
+      btn.disabled = true;
+      btn.textContent = '今天的遊戲時間已經用完囉，明天再來玩！';
+    } else {
+      btn.disabled = false;
+      btn.textContent = '🎮 玩小遊戲（今天還可以玩 ' + remaining + ' 次）';
+    }
+  }
 
   function formatMMSS(totalSeconds) {
     const m = Math.floor(totalSeconds / 60);
@@ -892,7 +1024,19 @@
     show('screen-reward-done');
   }
 
-  $('complete-play').addEventListener('click', startRewardGame);
+  function exitRewardGameEarly() {
+    if (rewardTimerId) { clearInterval(rewardTimerId); rewardTimerId = null; }
+    $('reward-iframe').src = 'about:blank';
+    renderHome();
+    show('screen-home');
+  }
+
+  $('complete-play').addEventListener('click', function () {
+    if (getRewardCountToday() >= REWARD_MAX_PER_DAY) return;
+    incrementRewardCountToday();
+    startRewardGame();
+  });
+  $('reward-exit').addEventListener('click', exitRewardGameEarly);
   $('reward-back-to-hub').addEventListener('click', function () {
     $('reward-iframe').src = REWARD_GAME_URL;
   });
