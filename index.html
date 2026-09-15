@@ -142,9 +142,12 @@
       <div class="sentence-target">
         <div class="word-zh" id="rf-zh" style="margin-top:6px"></div>
       </div>
-      <p class="spell-prompt" id="rf-prompt">請輸入英文單字</p>
-      <input class="spell-input" id="rf-input" type="text" autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="type here">
-      <button class="pixel-btn" id="rf-submit" style="width:100%;margin-top:12px">確認</button>
+      <p class="spell-prompt" id="rf-prompt">請依序點選字母拼出單字</p>
+      <div id="rf-tile-area">
+        <div class="tile-answer" id="rf-answer"></div>
+        <div class="tile-bank" id="rf-bank"></div>
+        <button class="pixel-btn secondary" id="rf-clear" style="width:100%;margin-top:12px">清除重來</button>
+      </div>
       <div class="hint-box" id="rf-hint"></div>
       <div class="reveal-box" id="rf-reveal" hidden>
         <div class="en" id="rf-reveal-en"></div>

@@ -33,6 +33,10 @@
     reviewFillTotalInitial: 0,
     reviewFillPos: 0,
     reviewFillAttempts: 0,
+    reviewFillTarget: [],
+    reviewFillAnswer: [],
+    reviewFillBank: [],
+    reviewFillLocked: false,
     previewIdx: 0,
     checkMcIdx: 0,
     checkShortIdx: 0,
@@ -695,17 +699,11 @@
     const word = entry.word;
     session.reviewFillAttempts = 0;
 
-    $('rf-prompt').textContent = entry.isRetry ? '🔁 加強練習：再輸入一次這個單字' : '請輸入英文單字';
+    $('rf-prompt').textContent = entry.isRetry ? '🔁 加強練習：再拼一次這個單字' : '請依序點選字母拼出單字';
     $('rf-zh').textContent = word.zh + '（' + word.pos + '）';
     $('rf-hint').textContent = '';
     $('rf-reveal').hidden = true;
-    $('rf-submit').hidden = false;
-
-    const input = $('rf-input');
-    input.value = '';
-    input.className = 'spell-input';
-    input.disabled = false;
-    input.focus();
+    $('rf-tile-area').hidden = false;
 
     const dots = $('rf-dots');
     if (entry.isRetry) {
@@ -720,40 +718,109 @@
         dots.appendChild(dot);
       }
     }
+
+    setupTileSpelling(word.en.toLowerCase());
   }
 
-  function handleReviewFillSubmit() {
+  function setupTileSpelling(target) {
+    session.reviewFillTarget = target.split('');
+    session.reviewFillAnswer = [];
+    session.reviewFillLocked = false;
+    session.reviewFillBank = shuffle(session.reviewFillTarget.map(function (ch, i) {
+      return { char: ch, srcIdx: i, used: false };
+    }));
+    renderTileUI();
+  }
+
+  function renderTileUI() {
+    const answerEl = $('rf-answer');
+    const bankEl = $('rf-bank');
+    answerEl.innerHTML = '';
+    bankEl.innerHTML = '';
+
+    const placed = session.reviewFillAnswer;
+    session.reviewFillTarget.forEach(function (ch, i) {
+      const slot = document.createElement('span');
+      const isFilled = i < placed.length;
+      const isSpace = ch === ' ';
+      slot.className = 'tile-slot' + (isFilled ? ' filled' : '') + (isSpace ? ' space-slot' : '');
+      if (isFilled && !isSpace) {
+        slot.textContent = placed[i].char.toUpperCase();
+      }
+      if (isFilled && i === placed.length - 1 && !session.reviewFillLocked) {
+        slot.addEventListener('click', undoLastTile);
+      }
+      answerEl.appendChild(slot);
+    });
+
+    session.reviewFillBank.forEach(function (tile, bankIdx) {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'tile-btn' + (tile.used ? ' used' : '');
+      btn.textContent = tile.char === ' ' ? '␣' : tile.char.toUpperCase();
+      btn.disabled = tile.used || session.reviewFillLocked;
+      btn.addEventListener('click', function () { pickTile(bankIdx); });
+      bankEl.appendChild(btn);
+    });
+  }
+
+  function pickTile(bankIdx) {
+    if (session.reviewFillLocked) return;
+    const tile = session.reviewFillBank[bankIdx];
+    if (!tile || tile.used) return;
+    tile.used = true;
+    session.reviewFillAnswer.push(tile);
+    renderTileUI();
+    if (session.reviewFillAnswer.length === session.reviewFillTarget.length) {
+      checkTileAnswer();
+    }
+  }
+
+  function undoLastTile() {
+    if (session.reviewFillLocked) return;
+    const last = session.reviewFillAnswer.pop();
+    if (last) {
+      session.reviewFillBank[session.reviewFillBank.indexOf(last)].used = false;
+      renderTileUI();
+    }
+  }
+
+  $('rf-clear').addEventListener('click', function () {
+    if (session.reviewFillLocked) return;
+    session.reviewFillAnswer = [];
+    session.reviewFillBank.forEach(function (t) { t.used = false; });
+    renderTileUI();
+  });
+
+  function checkTileAnswer() {
+    session.reviewFillLocked = true;
     const entry = session.reviewFillQueue[session.reviewFillPos];
     const word = entry.word;
-    const input = $('rf-input');
-    const val = input.value.trim().toLowerCase();
-    if (!val) return;
+    const guess = session.reviewFillAnswer.map(function (t) { return t.char; }).join('');
 
-    if (val === word.en.toLowerCase()) {
-      input.disabled = true;
-      input.classList.add('correct');
-      $('rf-submit').hidden = true;
+    if (guess === word.en.toLowerCase()) {
       setTimeout(function () { revealReviewFill(word, true); }, 350);
       return;
     }
 
     session.reviewFillAttempts++;
-    input.classList.add('wrong');
-    setTimeout(function () { input.classList.remove('wrong'); }, 400);
-
     if (session.reviewFillAttempts === 1) {
       $('rf-hint').textContent = '再試一次！提示：共 ' + word.en.length + ' 個字母，開頭是「' + word.en[0].toUpperCase() + '」';
-      input.value = '';
-      input.focus();
+      setTimeout(function () {
+        session.reviewFillAnswer = [];
+        session.reviewFillBank.forEach(function (t) { t.used = false; });
+        session.reviewFillLocked = false;
+        renderTileUI();
+      }, 900);
     } else {
-      input.disabled = true;
-      $('rf-submit').hidden = true;
       revealReviewFill(word, false);
     }
   }
 
   function revealReviewFill(word, wasCorrect) {
+    session.reviewFillLocked = true;
     $('rf-hint').textContent = '';
+    $('rf-tile-area').hidden = true;
     $('rf-reveal').hidden = false;
     $('rf-reveal-en').textContent = word.en;
     $('rf-reveal-speak').onclick = function () { speak(word.en); };
@@ -763,10 +830,6 @@
     }
   }
 
-  $('rf-submit').addEventListener('click', handleReviewFillSubmit);
-  $('rf-input').addEventListener('keydown', function (e) {
-    if (e.key === 'Enter' && !$('rf-input').disabled) { handleReviewFillSubmit(); }
-  });
   $('rf-continue').addEventListener('click', function () {
     session.reviewFillPos++;
     if (session.reviewFillPos < session.reviewFillQueue.length) {
