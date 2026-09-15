@@ -69,13 +69,41 @@
       return '<span class="zh-unit"><span class="zh-char">' + ch + '</span><span class="zh-zy">' + rows + '</span></span>';
     }).join('');
   }
-  function speak(text) {
+  /* ===================== VOICE SELECTION ===================== */
+  let preferredVoice = null;
+
+  function rankVoice(v) {
+    const name = v.name || '';
+    if (/natural/i.test(name)) return 0;
+    if (/online|enhanced|premium/i.test(name)) return 1;
+    if (/google/i.test(name)) return 2;
+    return 3;
+  }
+
+  function pickPreferredVoice() {
+    if (!('speechSynthesis' in window)) return null;
+    const voices = window.speechSynthesis.getVoices();
+    if (!voices.length) return null;
+    const enVoices = voices.filter(function (v) { return v.lang && v.lang.toLowerCase().indexOf('en') === 0; });
+    const pool = enVoices.length ? enVoices : voices;
+    const sorted = pool.slice().sort(function (a, b) { return rankVoice(a) - rankVoice(b); });
+    return sorted[0] || null;
+  }
+
+  if ('speechSynthesis' in window) {
+    preferredVoice = pickPreferredVoice();
+    window.speechSynthesis.onvoiceschanged = function () { preferredVoice = pickPreferredVoice(); };
+  }
+
+  function speak(text, voiceOverride) {
     try {
       if (!('speechSynthesis' in window)) return;
       window.speechSynthesis.cancel();
       const u = new SpeechSynthesisUtterance(text);
       u.lang = 'en-US';
       u.rate = 0.9;
+      const v = voiceOverride || preferredVoice;
+      if (v) { u.voice = v; }
       window.speechSynthesis.speak(u);
     } catch (e) { /* speech unavailable, ignore */ }
   }
@@ -1119,6 +1147,40 @@
       else if (jump === 'check') { startCheck(); }
       else if (jump === 'scott-complete') { ensureDayState(dayId); show('screen-complete'); }
       updateTestBar();
+    });
+
+    function renderVoicePanel() {
+      const panel = $('test-voice-panel');
+      if (!('speechSynthesis' in window)) { panel.textContent = '此瀏覽器不支援語音功能'; return; }
+      const voices = window.speechSynthesis.getVoices();
+      panel.innerHTML = '';
+      if (!voices.length) {
+        panel.textContent = '尚未載入語音清單，稍後再點一次';
+        return;
+      }
+      voices.forEach(function (v) {
+        const isPreferred = preferredVoice && v.voiceURI === preferredVoice.voiceURI;
+        const row = document.createElement('div');
+        row.className = 'test-voice-row' + (isPreferred ? ' is-preferred' : '');
+        const nameSpan = document.createElement('span');
+        nameSpan.className = 'tv-name';
+        nameSpan.textContent = (isPreferred ? '★ ' : '') + v.name + '（' + v.lang + '）';
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.textContent = '▶ 試聽';
+        btn.addEventListener('click', function () {
+          speak('Hello, this is a test. I like apples and I see a dog.', v);
+        });
+        row.appendChild(nameSpan);
+        row.appendChild(btn);
+        panel.appendChild(row);
+      });
+    }
+
+    $('test-voice-toggle').addEventListener('click', function () {
+      const panel = $('test-voice-panel');
+      panel.hidden = !panel.hidden;
+      if (!panel.hidden) { renderVoicePanel(); }
     });
   }
 })();

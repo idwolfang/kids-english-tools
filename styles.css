@@ -704,3 +704,27 @@
     color: #fff;
     cursor: pointer;
   }
+  .test-voice-panel {
+    flex-basis: 100%;
+    max-height: 220px;
+    overflow-y: auto;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px dashed #555;
+  }
+  .test-voice-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 4px 2px;
+    font-size: 11px;
+    border-bottom: 1px solid #2a2a2a;
+  }
+  .test-voice-row .tv-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .test-voice-row.is-preferred .tv-name { color: var(--accent2); font-weight: 700; }
+  .test-voice-row button { flex-shrink: 0; }
