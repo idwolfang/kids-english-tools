@@ -71,9 +71,11 @@
   }
   /* ===================== VOICE SELECTION ===================== */
   let preferredVoice = null;
+  const PREFERRED_VOICE_NAMES = ['Allison'];
 
   function rankVoice(v) {
     const name = v.name || '';
+    if (PREFERRED_VOICE_NAMES.some(function (n) { return name.toLowerCase().indexOf(n.toLowerCase()) !== -1; })) return -1;
     if (/natural/i.test(name)) return 0;
     if (/online|enhanced|premium/i.test(name)) return 1;
     if (/google/i.test(name)) return 2;
