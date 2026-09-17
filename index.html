@@ -36,6 +36,7 @@
     <div id="profile-header">
       <button class="back-btn" id="profile-back">←</button>
     </div>
+    <div class="review-banner" id="review-banner" hidden>🔁 複習：<span id="review-banner-title"></span></div>
 
     <!-- HOME / DAY SELECT (calendar) -->
     <section id="screen-home" class="screen pixel-panel">
@@ -108,8 +109,12 @@
         <div class="word-emoji" id="sp-emoji">🐶</div>
         <div class="word-zh" id="sp-zh" style="margin-top:6px"></div>
       </div>
-      <p class="spell-prompt" id="sp-prompt">請選出正確的英文單字</p>
-      <div class="option-grid" id="sp-options"></div>
+      <p class="spell-prompt" id="sp-prompt">請依序點選字母拼出單字</p>
+      <div id="sp-tile-area">
+        <div class="tile-answer" id="sp-answer"></div>
+        <div class="tile-bank" id="sp-bank"></div>
+        <button class="pixel-btn secondary" id="sp-clear" style="width:100%;margin-top:12px">清除重來</button>
+      </div>
       <div class="hint-box" id="sp-hint"></div>
       <div class="reveal-box" id="sp-reveal" hidden>
         <div class="en" id="sp-reveal-en"></div>

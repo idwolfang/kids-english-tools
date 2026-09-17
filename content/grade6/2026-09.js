@@ -2,7 +2,7 @@
   const grade6Days = [
     {
       id: 'sday1',
-      date: '2026-09-10',
+      date: '2026-09-14',
       title: 'Saturday Morning',
       emoji: '🏀',
       storyEn: "Ben wakes up at eight o'clock. He eats breakfast with his family. His mom makes eggs and toast. After breakfast, Ben rides his bike to the park. He meets his best friend, Leo, there. They play basketball together until noon. It is a happy morning.",
@@ -28,7 +28,7 @@
     },
     {
       id: 'sday2',
-      date: '2026-09-11',
+      date: '2026-09-16',
       title: 'After School',
       emoji: '🎒',
       storyEn: "Mia finishes school at three o'clock. She walks home with her neighbor, Zoe. On the way, they stop at a small shop and buy some snacks. At home, Mia does her homework before dinner. After dinner, she reads a book and goes to bed early.",
@@ -53,7 +53,7 @@
     },
     {
       id: 'sday3',
-      date: '2026-09-12',
+      date: '2026-09-18',
       title: 'A Rainy Day',
       emoji: '🌧️',
       storyEn: "It is raining outside today. Tom cannot play soccer with his friends. Instead, he stays home and draws a picture of a dragon. His little sister watches him and laughs. Later, they drink hot chocolate together and watch a movie. It is still a fun day.",
@@ -78,7 +78,7 @@
     },
     {
       id: 'sday4',
-      date: '2026-09-13',
+      date: '2026-09-21',
       title: 'The School Trip',
       emoji: '🦁',
       storyEn: "Next Friday, our class will visit the zoo. Everyone is very excited about the trip. We will see lions, elephants, and monkeys there. Our teacher says we must stay together and listen carefully. After lunch, we will take photos near the big tiger.",
@@ -104,7 +104,7 @@
     },
     {
       id: 'sday5',
-      date: '2026-09-14',
+      date: '2026-09-23',
       title: 'The Lost Puppy',
       emoji: '🐶',
       storyEn: "On Monday, Amy finds a small puppy near the school gate. The puppy looks hungry and scared. Amy gives it some food and water. She asks her classmates if they know the owner. Finally, they find the owner, an old man who lives nearby. He thanks Amy for her kindness.",
@@ -130,7 +130,7 @@
     },
     {
       id: 'sday6',
-      date: '2026-09-15',
+      date: '2026-09-25',
       title: "Grandma's Garden",
       emoji: '🌻',
       storyEn: "Every Sunday, Leo visits his grandma's garden. She grows tomatoes, carrots, and sunflowers there. Leo helps her water the plants and pull out the weeds. Grandma teaches him how to plant new seeds. After working, they sit under a big tree and eat fresh fruit. Leo loves these quiet afternoons with her.",
@@ -156,7 +156,7 @@
     },
     {
       id: 'sday7',
-      date: '2026-09-16',
+      date: '2026-09-28',
       title: 'The Science Fair',
       emoji: '🌋',
       storyEn: "Next month, Daniel's school will hold a science fair. He decides to build a small volcano model with his partner, Sam. They mix baking soda and vinegar to make it erupt. At first, the model does not work well, so they try again carefully. On the day of the fair, their volcano finally erupts, and everyone claps.",
@@ -182,7 +182,7 @@
     },
     {
       id: 'sday8',
-      date: '2026-09-17',
+      date: '2026-09-30',
       title: 'A New Neighbor',
       emoji: '🏸',
       storyEn: "Last week, a new family moved into the house next door. Their daughter, Emma, is the same age as Chloe. At first, Chloe feels shy and does not know what to say. One afternoon, Emma invites Chloe to play badminton in the yard. They laugh a lot and quickly become good friends. Now they walk to school together every day.",
@@ -205,86 +205,9 @@
         { q: "What do they do every day now?", options: ["Play video games", "Walk to school together", "Do homework together"], answer: 1 }
       ],
       short: []
-    },
-    {
-      id: 'sday9',
-      date: '2026-09-18',
-      title: 'The Camping Trip',
-      emoji: '⛺',
-      storyEn: "During summer vacation, Jack's family goes camping by the lake. They set up a big tent and start a small campfire. At night, Jack's dad tells funny stories while they roast marshmallows. Jack hears owls hooting in the dark forest and feels a little nervous. In the morning, everyone wakes up early to watch the sunrise together.",
-      previewWords: [
-        { en: 'vacation', pos: 'n.', zh: '假期', def: 'time away from school or work' },
-        { en: 'tent', pos: 'n.', zh: '帳篷', def: 'a shelter made of cloth for camping' },
-        { en: 'campfire', pos: 'n.', zh: '營火', def: 'a fire made outdoors while camping' },
-        { en: 'roast', pos: 'v.', zh: '烤', def: 'to cook something over a fire' },
-        { en: 'marshmallow', pos: 'n.', zh: '棉花糖', def: 'a soft, sweet white candy' },
-        { en: 'hoot', pos: 'v.', zh: '(貓頭鷹)鳴叫', def: 'the sound an owl makes' },
-        { en: 'nervous', pos: 'adj.', zh: '緊張的', def: 'feeling worried or a little afraid' },
-        { en: 'sunrise', pos: 'n.', zh: '日出', def: 'when the sun comes up in the morning' },
-        { en: 'forest', pos: 'n.', zh: '森林', def: 'a large area covered with trees' }
-      ],
-      mc: [
-        { q: "Where does Jack's family go camping?", options: ["By the lake", "In the mountains", "At the beach"], answer: 0 },
-        { q: "What do they do at night?", options: ["Watch TV", "Tell stories and roast marshmallows", "Go swimming"], answer: 1 },
-        { q: "What does Jack hear in the forest?", options: ["Owls hooting", "Dogs barking", "Music playing"], answer: 0 },
-        { q: "How does Jack feel when he hears the owls?", options: ["Excited", "A little nervous", "Bored"], answer: 1 },
-        { q: "What does everyone do in the morning?", options: ["Sleep in", "Wake up early to watch the sunrise", "Go home"], answer: 1 }
-      ],
-      short: []
-    },
-    {
-      id: 'sday10',
-      date: '2026-09-19',
-      title: 'The Talent Show',
-      emoji: '🎤',
-      storyEn: "Every year, Riverside Elementary holds a talent show for all students. This year, Sophie wants to sing a song on stage, but she feels very nervous. Her best friend, Grace, practices with her every day after school. On the night of the show, Sophie takes a deep breath and sings bravely. The audience claps loudly, and Sophie feels very proud.",
-      previewWords: [
-        { en: 'talent show', pos: '片語', zh: '才藝表演', def: 'an event where people show a special skill' },
-        { en: 'nervous', pos: 'adj.', zh: '緊張的', def: 'feeling worried or a little afraid' },
-        { en: 'practice', pos: 'v.', zh: '練習', def: 'to do something again and again to get better' },
-        { en: 'stage', pos: 'n.', zh: '舞台', def: 'a raised platform where people perform' },
-        { en: 'deep breath', pos: '片語', zh: '深呼吸', def: 'a big breath of air' },
-        { en: 'bravely', pos: 'adv.', zh: '勇敢地', def: 'in a brave way, without giving up to fear' },
-        { en: 'audience', pos: 'n.', zh: '觀眾', def: 'the people watching a show' },
-        { en: 'loudly', pos: 'adv.', zh: '大聲地', def: 'in a loud way' },
-        { en: 'proud', pos: 'adj.', zh: '驕傲的', def: 'feeling good about something you did' }
-      ],
-      mc: [
-        { q: "What does the school hold every year?", options: ["A talent show", "A sports day", "A field trip"], answer: 0 },
-        { q: "What does Sophie want to do?", options: ["Dance", "Sing a song", "Tell jokes"], answer: 1 },
-        { q: "Who practices with Sophie?", options: ["Her teacher", "Her mom", "Her best friend, Grace"], answer: 2 },
-        { q: "What does Sophie do before singing?", options: ["Takes a deep breath", "Runs away", "Cries"], answer: 0 },
-        { q: "How does Sophie feel after the show?", options: ["Embarrassed", "Very proud", "Angry"], answer: 1 }
-      ],
-      short: []
-    },
-    {
-      id: 'sday11',
-      date: '2026-09-20',
-      title: 'The Time Capsule',
-      emoji: '⏳',
-      storyEn: "On the last day of school, Mr. Lee's class buries a time capsule under the old oak tree. Each student puts something special inside, like photos, letters, and small toys. They plan to open it again in ten years. Ben writes a letter to his future self, promising to stay curious and kind. Everyone feels excited about the future.",
-      previewWords: [
-        { en: 'bury', pos: 'v.', zh: '埋', def: 'to put something under the ground' },
-        { en: 'capsule', pos: 'n.', zh: '膠囊（此指時光膠囊）', def: 'a small closed container' },
-        { en: 'special', pos: 'adj.', zh: '特別的', def: 'not ordinary; important in some way' },
-        { en: 'plan', pos: 'v.', zh: '計畫', def: 'to think about what you will do' },
-        { en: 'future', pos: 'n./adj.', zh: '未來', def: 'the time that has not happened yet' },
-        { en: 'promise', pos: 'v.', zh: '承諾', def: 'to say you will definitely do something' },
-        { en: 'curious', pos: 'adj.', zh: '好奇的', def: 'wanting to learn or know about something' },
-        { en: 'excited', pos: 'adj.', zh: '興奮的', def: 'feeling very happy about something' },
-        { en: 'letter', pos: 'n.', zh: '信', def: 'a written message sent to someone' }
-      ],
-      mc: [
-        { q: "What does the class bury?", options: ["A treasure box", "A time capsule", "A photo album"], answer: 1 },
-        { q: "Where do they bury it?", options: ["Under the old oak tree", "In the classroom", "In the garden"], answer: 0 },
-        { q: "When do they plan to open it?", options: ["Next year", "In ten years", "Tomorrow"], answer: 1 },
-        { q: "What does Ben write?", options: ["A story", "A letter to his future self", "A song"], answer: 1 },
-        { q: "How does everyone feel about the future?", options: ["Scared", "Excited", "Bored"], answer: 1 }
-      ],
-      short: []
     }
   ];
+
 
   window.GRADE6_DAYS = (window.GRADE6_DAYS || []).concat(grade6Days);
 })();

@@ -240,6 +240,17 @@
     cursor: pointer;
     padding: 6px 8px;
   }
+  .review-banner {
+    text-align: center;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--accent2-dark);
+    background: var(--panel);
+    border: 2px dashed var(--accent2-dark);
+    border-radius: 6px;
+    padding: 8px 10px;
+    margin: -4px 0 14px;
+  }
 
   /* ---------- home / day select ---------- */
   #screen-home h2.section-title {
@@ -342,6 +353,10 @@
     color: var(--ink-soft);
     cursor: not-allowed;
     opacity: 0.8;
+  }
+  .cal-cell.review-day.unlocked {
+    background: var(--sky-cloud, var(--panel-edge));
+    border-color: var(--accent2-dark);
   }
   .cal-cell.is-today { box-shadow: 0 0 0 2px var(--accent2-dark); }
   .cal-cell .cal-icon { font-size: 13px; margin-top: 1px; }

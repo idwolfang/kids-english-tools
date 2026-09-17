@@ -9,6 +9,7 @@
 
   let session = {
     dayId: null,
+    isReview: false,
     dayStartTime: null,
     wordIdx: 0,
     sentenceOrder: [],
@@ -25,6 +26,10 @@
     spellTotalInitial: 0,
     spellPos: 0,
     spellAttempts: 0,
+    spellTarget: [],
+    spellAnswer: [],
+    spellBank: [],
+    spellLocked: false,
     reviewQueue: [],
     reviewTotalInitial: 0,
     reviewPos: 0,
@@ -209,6 +214,27 @@
       : (ds.wordsDone && ds.sentenceDone && ds.matchDone && ds.spellDone);
   }
 
+  function isReviewCellDone(ds, profile) {
+    return profile === 'scott'
+      ? (ds.reviewDone && ds.checkDone)
+      : (ds.wordsDone && ds.sentenceDone && ds.matchDone && ds.spellDone);
+  }
+
+  function stateKey() {
+    return (session.isReview ? 'review-' : '') + session.dayId;
+  }
+
+  /* Tue/Thu/Sat auto-review: if the calendar date itself has no lesson but
+     the day right before it does, that date becomes a review of that lesson. */
+  function getReviewSourceDay(iso, daysByDate) {
+    const weekday = new Date(iso + 'T00:00:00').getDay();
+    if (weekday !== 2 && weekday !== 4 && weekday !== 6) return null;
+    const d = new Date(iso + 'T00:00:00');
+    d.setDate(d.getDate() - 1);
+    const prevIso = toIso(d.getFullYear(), d.getMonth(), d.getDate());
+    return daysByDate[prevIso] || null;
+  }
+
   /* ===================== HOME / DAY SELECT (calendar) ===================== */
   function renderHome() {
     $('profile-name').textContent = activeProfile === 'scott' ? 'SCOTT' : 'HARDY';
@@ -232,11 +258,12 @@
       const iso = toIso(calView.year, calView.month, d);
       const cell = document.createElement('div');
       const contentDay = daysByDate[iso];
+      const reviewSource = !contentDay ? getReviewSourceDay(iso, daysByDate) : null;
 
-      if (!contentDay) {
+      if (!contentDay && !reviewSource) {
         cell.className = 'cal-cell plain';
         cell.textContent = d;
-      } else {
+      } else if (contentDay) {
         const unlocked = TEST_MODE || iso <= todayIso;
         const ds = ensureDayState(contentDay.id);
         const done = isDayDone(ds, activeProfile);
@@ -246,7 +273,19 @@
           '<span class="cal-icon">' + (unlocked ? contentDay.emoji : '🔒') + '</span>' +
           (done ? '<span class="cal-badge">✅</span>' : '');
         if (unlocked) {
-          cell.addEventListener('click', function () { startDay(contentDay.id); });
+          cell.addEventListener('click', function () { startDay(contentDay.id, false); });
+        }
+      } else {
+        const unlocked = TEST_MODE || iso <= todayIso;
+        const ds = ensureDayState('review-' + reviewSource.id);
+        const done = isReviewCellDone(ds, activeProfile);
+        cell.className = 'cal-cell has-content review-day ' + (unlocked ? 'unlocked' : 'locked');
+        cell.innerHTML =
+          '<span>' + d + '</span>' +
+          '<span class="cal-icon">' + (unlocked ? '🔁' : '🔒') + '</span>' +
+          (done ? '<span class="cal-badge">✅</span>' : '');
+        if (unlocked) {
+          cell.addEventListener('click', function () { startDay(reviewSource.id, true); });
         }
       }
 
@@ -266,11 +305,21 @@
     renderHome();
   });
 
-  function startDay(dayId) {
+  function startDay(dayId, isReview) {
     session.dayId = dayId;
+    session.isReview = !!isReview;
     session.dayStartTime = Date.now();
+
+    const banner = $('review-banner');
+    if (session.isReview) {
+      $('review-banner-title').textContent = dayById(dayId).title;
+      banner.hidden = false;
+    } else {
+      banner.hidden = true;
+    }
+
     if (activeProfile === 'scott') {
-      startPreviewCards();
+      if (session.isReview) { startVocabReview(); } else { startPreviewCards(); }
     } else {
       session.wordIdx = 0;
       show('screen-words');
@@ -312,7 +361,7 @@
       session.wordIdx++;
       renderWordCard();
     } else {
-      ensureDayState(day.id).wordsDone = true;
+      ensureDayState(stateKey()).wordsDone = true;
       startSentencePractice();
     }
   });
@@ -402,7 +451,7 @@
       session.sentenceIdx++;
       renderSentenceRound();
     } else {
-      ensureDayState(day.id).sentenceDone = true;
+      ensureDayState(stateKey()).sentenceDone = true;
       startMatchGame();
     }
   });
@@ -477,7 +526,7 @@
         session.matchLock = false;
         renderMatchColumns();
         if (session.matchedKeys.length === session.matchLeft.length) {
-          ensureDayState(dayById(session.dayId).id).matchDone = true;
+          ensureDayState(stateKey()).matchDone = true;
           setTimeout(startSpellPractice, 400);
         }
       }, 300);
@@ -505,16 +554,16 @@
   }
 
   function renderSpellRound() {
-    const day = dayById(session.dayId);
     const entry = session.spellQueue[session.spellPos];
     const word = entry.word;
     session.spellAttempts = 0;
 
-    $('sp-prompt').textContent = entry.isRetry ? '🔁 加強練習：再選一次這個單字' : '請選出正確的英文單字';
+    $('sp-prompt').textContent = entry.isRetry ? '🔁 加強練習：再拼一次這個單字' : '請依序點選字母拼出單字';
     $('sp-emoji').textContent = word.emoji;
     $('sp-zh').innerHTML = renderRuby(word.wordZh);
     $('sp-hint').textContent = '';
     $('sp-reveal').hidden = true;
+    $('sp-tile-area').hidden = false;
 
     const dots = $('spell-dots');
     if (entry.isRetry) {
@@ -530,47 +579,108 @@
       }
     }
 
-    const distractors = shuffle(day.words.filter(function (w) { return w.en !== word.en; })).slice(0, 2);
-    const options = shuffle([word].concat(distractors));
+    setupSpellTiles(word.en.toLowerCase());
+  }
 
-    const grid = $('sp-options');
-    grid.innerHTML = '';
-    grid.hidden = false;
-    options.forEach(function (opt) {
+  function setupSpellTiles(target) {
+    session.spellTarget = target.split('');
+    session.spellAnswer = [];
+    session.spellLocked = false;
+    session.spellBank = shuffle(session.spellTarget.map(function (ch, i) {
+      return { char: ch, srcIdx: i, used: false };
+    }));
+    renderSpellTileUI();
+  }
+
+  function renderSpellTileUI() {
+    const answerEl = $('sp-answer');
+    const bankEl = $('sp-bank');
+    answerEl.innerHTML = '';
+    bankEl.innerHTML = '';
+
+    const placed = session.spellAnswer;
+    session.spellTarget.forEach(function (ch, i) {
+      const slot = document.createElement('span');
+      const isFilled = i < placed.length;
+      const isSpace = ch === ' ';
+      slot.className = 'tile-slot' + (isFilled ? ' filled' : '') + (isSpace ? ' space-slot' : '');
+      if (isFilled && !isSpace) {
+        slot.textContent = placed[i].char.toUpperCase();
+      }
+      if (isFilled && i === placed.length - 1 && !session.spellLocked) {
+        slot.addEventListener('click', undoLastSpellTile);
+      }
+      answerEl.appendChild(slot);
+    });
+
+    session.spellBank.forEach(function (tile, bankIdx) {
       const btn = document.createElement('button');
-      btn.className = 'option-btn';
-      btn.innerHTML = '<span>' + opt.en + '</span>';
-      btn.addEventListener('click', function () { handleSpellAnswer(opt, word, btn); });
-      grid.appendChild(btn);
+      btn.type = 'button';
+      btn.className = 'tile-btn' + (tile.used ? ' used' : '');
+      btn.textContent = tile.char === ' ' ? '␣' : tile.char.toUpperCase();
+      btn.disabled = tile.used || session.spellLocked;
+      btn.addEventListener('click', function () { pickSpellTile(bankIdx); });
+      bankEl.appendChild(btn);
     });
   }
 
-  function handleSpellAnswer(chosen, correct, btnEl) {
-    const isCorrect = chosen.en === correct.en;
-    const grid = $('sp-options');
+  function pickSpellTile(bankIdx) {
+    if (session.spellLocked) return;
+    const tile = session.spellBank[bankIdx];
+    if (!tile || tile.used) return;
+    tile.used = true;
+    session.spellAnswer.push(tile);
+    renderSpellTileUI();
+    if (session.spellAnswer.length === session.spellTarget.length) {
+      checkSpellTileAnswer();
+    }
+  }
 
-    if (isCorrect) {
-      Array.prototype.forEach.call(grid.children, function (b) { b.disabled = true; });
-      btnEl.classList.add('correct');
-      setTimeout(function () { revealSpell(correct, true); }, 500);
+  function undoLastSpellTile() {
+    if (session.spellLocked) return;
+    const last = session.spellAnswer.pop();
+    if (last) {
+      session.spellBank[session.spellBank.indexOf(last)].used = false;
+      renderSpellTileUI();
+    }
+  }
+
+  $('sp-clear').addEventListener('click', function () {
+    if (session.spellLocked) return;
+    session.spellAnswer = [];
+    session.spellBank.forEach(function (t) { t.used = false; });
+    renderSpellTileUI();
+  });
+
+  function checkSpellTileAnswer() {
+    session.spellLocked = true;
+    const entry = session.spellQueue[session.spellPos];
+    const word = entry.word;
+    const guess = session.spellAnswer.map(function (t) { return t.char; }).join('');
+
+    if (guess === word.en.toLowerCase()) {
+      setTimeout(function () { revealSpell(word, true); }, 350);
       return;
     }
 
     session.spellAttempts++;
-    btnEl.classList.add('wrong');
-    btnEl.disabled = true;
-
     if (session.spellAttempts === 1) {
-      $('sp-hint').textContent = '再想想！提示：中文意思是「' + correct.wordZh.map(function (p) { return p[0]; }).join('') + '」';
+      $('sp-hint').textContent = '再試一次！提示：共 ' + word.en.length + ' 個字母，開頭是「' + word.en[0].toUpperCase() + '」';
+      setTimeout(function () {
+        session.spellAnswer = [];
+        session.spellBank.forEach(function (t) { t.used = false; });
+        session.spellLocked = false;
+        renderSpellTileUI();
+      }, 900);
     } else {
-      Array.prototype.forEach.call(grid.children, function (b) { b.disabled = true; });
-      setTimeout(function () { revealSpell(correct, false); }, 300);
+      revealSpell(word, false);
     }
   }
 
   function revealSpell(word, wasCorrect) {
+    session.spellLocked = true;
     $('sp-hint').textContent = '';
-    $('sp-options').hidden = true;
+    $('sp-tile-area').hidden = true;
     $('sp-reveal').hidden = false;
     $('sp-reveal-en').textContent = word.en;
     $('sp-reveal-speak').onclick = function () { speak(word.en); };
@@ -835,8 +945,8 @@
     if (session.reviewFillPos < session.reviewFillQueue.length) {
       renderReviewFillRound();
     } else {
-      ensureDayState(session.dayId).reviewDone = true;
-      startStory();
+      ensureDayState(stateKey()).reviewDone = true;
+      if (session.isReview) { startCheck(); } else { startStory(); }
     }
   });
 
@@ -879,7 +989,7 @@
       session.previewIdx++;
       renderPreviewCard();
     } else {
-      ensureDayState(day.id).previewDone = true;
+      ensureDayState(stateKey()).previewDone = true;
       startVocabReview();
     }
   });
@@ -896,7 +1006,7 @@
     speak($('story-text').textContent);
   });
   $('story-continue').addEventListener('click', function () {
-    ensureDayState(session.dayId).storyDone = true;
+    ensureDayState(stateKey()).storyDone = true;
     startCheck();
   });
 
@@ -1140,19 +1250,23 @@
 
   function finishDay() {
     const day = dayById(session.dayId);
-    ensureDayState(day.id).spellDone = true;
-    if (!TEST_MODE) { logProgress('Hardy', day.title, '100%', formatDuration(Date.now() - session.dayStartTime)); }
-    showDayComplete('今天的單字、短句、配對都完成了，太棒了！');
+    ensureDayState(stateKey()).spellDone = true;
+    const label = session.isReview ? day.title + '（複習）' : day.title;
+    if (!TEST_MODE) { logProgress('Hardy', label, '100%', formatDuration(Date.now() - session.dayStartTime)); }
+    showDayComplete(session.isReview ? '🔁 複習完成，記得更牢固了！' : '今天的單字、短句、配對都完成了，太棒了！');
   }
 
   function finishScottDay() {
     const day = dayById(session.dayId);
-    ensureDayState(day.id).checkDone = true;
-    if (!TEST_MODE) { logProgress('Scott', day.title, '100%', formatDuration(Date.now() - session.dayStartTime)); }
-    showDayComplete('今天的單字複習、故事、理解檢核都完成了，做得好！');
+    ensureDayState(stateKey()).checkDone = true;
+    const label = session.isReview ? day.title + '（複習）' : day.title;
+    if (!TEST_MODE) { logProgress('Scott', label, '100%', formatDuration(Date.now() - session.dayStartTime)); }
+    showDayComplete(session.isReview ? '🔁 複習完成，單字記得更熟練了！' : '今天的單字複習、故事、理解檢核都完成了，做得好！');
   }
 
   $('complete-home').addEventListener('click', function () {
+    session.isReview = false;
+    $('review-banner').hidden = true;
     renderHome();
     show('screen-home');
   });
@@ -1161,6 +1275,8 @@
   $('btn-hardy').addEventListener('click', function () {
     activeProfile = 'hardy';
     session.dayId = null;
+    session.isReview = false;
+    $('review-banner').hidden = true;
     $('screen-mode').hidden = true;
     $('profile-flow').hidden = false;
     renderHome();
@@ -1171,6 +1287,8 @@
   $('btn-scott').addEventListener('click', function () {
     activeProfile = 'scott';
     session.dayId = null;
+    session.isReview = false;
+    $('review-banner').hidden = true;
     $('screen-mode').hidden = true;
     $('profile-flow').hidden = false;
     renderHome();
